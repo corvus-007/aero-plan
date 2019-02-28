@@ -1,0 +1,112 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+svg {
+  display: block;
+  outline: 1px solid #BCAAA4;
+}
+
+path.hovered {
+  fill: #de4383;
+}
+
+.aero-plans {
+  display: -ms-grid;
+  display: grid;
+  -ms-grid-columns: 1fr;
+      grid-template-columns: 1fr;
+  -ms-grid-rows: 1fr;
+      grid-template-rows: 1fr;
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+}
+
+.aero-plans__floor {
+  position: relative;
+  -ms-grid-column: 1;
+      grid-column-start: 1;
+  grid-column-end: 2;
+  -ms-grid-row: 1;
+      grid-row-start: 1;
+  grid-row-end: 2;
+  background-color: #fff;
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+}
+
+.aero-plans__floor.hidden {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.aero-plans__floor.visible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.aero-plans__floor::before, .aero-plans__floor::after {
+  content: "";
+  position: absolute;
+  width: 64px;
+  height: 1px;
+  background-color: rgba(0, 0, 0, 0.25);
+  top: 50%;
+  left: 50%;
+  pointer-events: none;
+}
+
+.aero-plans__floor::before {
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+}
+
+.aero-plans__floor::after {
+  -webkit-transform: translate(-50%, -50%) rotate(-90deg);
+          transform: translate(-50%, -50%) rotate(-90deg);
+}
+
+button,
+select {
+  font-family: inherit;
+}
+
+.my-popper {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 2px;
+  max-width: 300px;
+  -webkit-box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 16px rgba(0, 0, 0, 0.1);
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.my-popper:empty {
+  display: none;
+}
+
+.my-popper::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  left: -10px;
+  right: -10px;
+  bottom: -10px;
+  z-index: -1;
+}
+
+.my-popper h2 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.my-popper p {
+  margin: 0;
+}
+/*# sourceMappingURL=style.css.map */

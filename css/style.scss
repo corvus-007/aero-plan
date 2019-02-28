@@ -1,0 +1,100 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+svg {
+  display: block;
+  outline: 1px solid #BCAAA4;
+}
+
+path {
+  &.hovered {
+    fill: #de4383;
+  }
+}
+
+.aero-plans {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: 1fr;
+  align-items: center;
+  justify-content: center;
+}
+
+.aero-plans__floor {
+  position: relative;
+  grid-column-start: 1;
+  grid-column-end: 2;
+  grid-row-start: 1;
+  grid-row-end: 2;
+  background-color: #fff;
+  transition: 0.3s;
+
+  &.hidden {
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  &.visible {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  &::before,
+  &::after {
+    content: "";
+    position: absolute;
+    width: 64px;
+    height: 1px;
+    background-color: rgba(#000, 0.25);
+    top: 50%;
+    left: 50%;
+    pointer-events: none;
+  }
+
+  &::before {
+    transform: translate(-50%, -50%);
+  }
+
+  &::after {
+    transform: translate(-50%, -50%) rotate(-90deg);
+  }
+}
+
+button,
+select {
+  font-family: inherit;
+}
+
+.my-popper {
+  padding: 15px;
+  background-color: #fff;
+  border-radius: 2px;
+  max-width: 300px;
+  box-shadow: 0 2px 16px rgba(#000, 0.1);
+  box-sizing: border-box;
+
+  &:empty {
+    display: none;
+  }
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -10px;
+    left: -10px;
+    right: -10px;
+    bottom: -10px;
+    z-index: -1;
+  }
+
+  h2 {
+    margin: 0;
+    font-size: 20px;
+  }
+
+  p {
+    margin: 0;
+  }
+}
