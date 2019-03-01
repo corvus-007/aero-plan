@@ -73,6 +73,7 @@ const floor1 = {
   areas: [{
       id: 1,
       title: `KARI`,
+      synonyms: [`кари`, `kari`],
       description: `Обувной магазин`,
       path: `M-284.7,179.1h-72.7v28 h-91.1l-0.2-95.2l163.7,0L-284.7,179.1z`,
       category: new Set([category[`Обувь`]])
@@ -80,6 +81,7 @@ const floor1 = {
     {
       id: 2,
       title: `ZARA`,
+      synonyms: [`zara`, `зара`],
       description: `Одежда для современных людей`,
       category: new Set([category[`Одежда`]]),
       'for-who': new Set([forWho[`Мужская одежда`], forWho[`Женская одежда`]]),
@@ -88,6 +90,7 @@ const floor1 = {
     {
       id: 3,
       title: `Bershka`,
+      synonyms: [`Bershka`, `бершка`],
       description: `Трендовая одежда, обувь и аксессуары`,
       path: `M486.6,256.3v25.1 h-62.4c-5.7-20.9-22.2-37.2-43.2-42.6l36.4-18v-33.7v-33.6v-0.1v-128h69.1V256.3z`,
       category: new Set([category[`Одежда`]])
@@ -95,6 +98,7 @@ const floor1 = {
     {
       id: 4,
       title: `H&M`,
+      synonyms: [`H&M`, `hm`, `ейч эм`],
       description: `Модная одежда для женщин, мужчин, подростков и детей`,
       path: `M-284.5,179.6v28.9v173 h-163.4l-0.5-173.8h91.7l0-28.1H-284.5z`,
       category: new Set([category[`Одежда`]])
@@ -102,6 +106,7 @@ const floor1 = {
     {
       id: 5,
       title: `Лента`,
+      synonyms: [`Лента`, `lenta`],
       description: `Гипермаркет`,
       path: `M782.7,25.4h317.1 v510.1H782.7v-25.6v-24.9V25.4z`,
       category: new Set([category[`Продукты питания`]])
@@ -114,6 +119,7 @@ const floor2 = {
   areas: [{
       id: 6,
       title: `OBI`,
+      synonyms: [`OBI`, `оби`],
       description: `Строительный гипермаркет`,
       path: `M-496.4-49.1l-0.2,480 l-251.4,0.4v58.3l-76.6,0v15.9l-95.1,0l0.1-15.8l-82.3,0v-58.3l-315.2-0.4l0.5-480H-496.4z`,
       category: new Set([category[`Товары для дома`]])
@@ -121,6 +127,7 @@ const floor2 = {
     {
       id: 7,
       title: `Технопарк`,
+      synonyms: [`Технопарк`],
       description: `Бытовая техника и электроника`,
       path: `M243.9226074,311.9947815 l-155.2497711,0.1965637v-50.125l-68.294281,0.138031V41.687439l223.5440521,0.4740143`,
       category: new Set([category[`Бытовая техника и электроника`]])
@@ -128,6 +135,7 @@ const floor2 = {
     {
       id: 8,
       title: `Дочки-Сыночки`,
+      synonyms: [`Дочки-Сыночки`, `Дочки Сыночки`, `Дочки`, `Сыночки`],
       description: `Товары для детей`,
       path: `M841.69,41.02 841.69,312.54 841.69,355.45 841.32,355.45 841.32,400.29 1044.79,400.29 1044.79,41.02 z`,
       category: new Set([category[`Детские товары`]])
@@ -135,6 +143,7 @@ const floor2 = {
     {
       id: 9,
       title: `OSTIN`,
+      synonyms: [`OSTIN`, `остин`],
       description: `Женская и мужская одежда`,
       path: `M22.4,408.7h128.4v12.8H201v103.9h-54.7v33.1 H34.4H22.4V408.7z`,
       category: new Set([category[`Одежда`]])
@@ -142,6 +151,7 @@ const floor2 = {
     {
       id: 10,
       title: `KRUTOYS`,
+      synonyms: [`KRUTOYS`, `крутойс`, `крутой`, 'крутойз'],
       description: `Товары для детей`,
       path: `M827.4315796,398.3096008h-18.0935059 V366.630249h18.0935059V398.3096008z`,
       category: new Set([category[`Детские товары`]])
@@ -149,6 +159,7 @@ const floor2 = {
     {
       id: 11,
       title: `М.Видео`,
+      synonyms: [`М.Видео`, `МВидео`, `М Видео`],
       description: `Магазин бытовой техники и электроники`,
       path: `M9.587574-48.5962143 L8.3517342,178.1529236h-158.1085205v17.5948486h-129.0063934V43.5695572v-92.1657715H9.587574z`,
       category: new Set([category[`Бытовая техника и электроника`]])
@@ -160,6 +171,7 @@ aeroPlans.push(floor2);
 class ToggleFloors {
   constructor(tabsControlsList, tabsContent, initialIndex = 1) {
     this.tabsControlsList = tabsControlsList;
+    this.tabsControlsItems = tabsControlsList.querySelectorAll(`.aero-plans-toggle-floors__item`);
     this.tabsContent = tabsContent;
     this.tabIndex = initialIndex;
 
@@ -332,7 +344,7 @@ function renderPlan(plan, planIndex) {
 
   function zoomed() {
     popperInstance.update();
-    console.log(d3.event.transform);
+    // console.log(d3.event.transform);
 
     g.attr("transform", d3.event.transform);
   }
@@ -424,11 +436,11 @@ function createZoomControls() {
 }
 
 // targetId - id магазина (области)
-const targetId = parseInt('10', 10);
+// const targetId = parseInt('9', 10);
 
 function getFloorIndexAndObjectOfPlaceId(id) {
   let floorIndex = 0;
-  let areaObj = {};
+  let areaObj = null;
 
   for (let currentFloorIndex = 0; currentFloorIndex < aeroPlans.length; currentFloorIndex++) {
     let currentFloor = aeroPlans[currentFloorIndex];
@@ -445,7 +457,7 @@ function getFloorIndexAndObjectOfPlaceId(id) {
 
   return {
     floorIndex,
-    areaObj: areaObj
+    areaObj
   };
 }
 
@@ -453,28 +465,75 @@ const aeroPlansToggleFloors = document.querySelector(`.aero-plans-toggle-floors`
 const aeroPlansFloors = document.querySelectorAll(`.aero-plans__floor`);
 
 
-const tabs = new ToggleFloors(aeroPlansToggleFloors, aeroPlansFloors, getFloorIndexAndObjectOfPlaceId(targetId).floorIndex + 1);
+const toggleFloors = new ToggleFloors(aeroPlansToggleFloors, aeroPlansFloors);
 
-const currentFloorIndex = getFloorIndexAndObjectOfPlaceId(targetId).floorIndex;
+function catchTargetPlace({
+  floorIndex,
+  areaObj
+}) {
+  // const floorIndex = getFloorIndexAndObjectOfPlaceId(targetId).floorIndex;
+  let targetId = getTargetIdFromAreaObj(areaObj);
+  let place = document.querySelector(`[data-place-id="${targetId}"]`);
 
-let place = document.querySelector(`[data-place-id="${targetId}"]`);
-if (place) {
-  place.classList.add('hovered');
-  let placeBBox = place.getBBox();
-  let cx = placeBBox.x + placeBBox.width / 2;
-  let cy = placeBBox.y + placeBBox.height / 2;
-  let scale = 0.95 * Math.min(WIDTH / placeBBox.width, HEIGHT / placeBBox.height);
-  if (scale < MIN_ZOOM) {
-    scale = MIN_ZOOM
-  } else if (scale > MAX_ZOOM) {
-    scale = MAX_ZOOM;
+  if (place) {
+    toggleFloors.changeTabContent(floorIndex + 1);
+    place.classList.add('hovered');
+    let placeBBox = place.getBBox();
+    let cx = placeBBox.x + placeBBox.width / 2;
+    let cy = placeBBox.y + placeBBox.height / 2;
+    let scale = 0.95 * Math.min(WIDTH / placeBBox.width, HEIGHT / placeBBox.height);
+    if (scale < MIN_ZOOM) {
+      scale = MIN_ZOOM
+    } else if (scale > MAX_ZOOM) {
+      scale = MAX_ZOOM;
+    }
+    let translate = [(WIDTH / 2 - 1 * cx), (HEIGHT / 2 - 1 * cy)];
+    svgArr[floorIndex]
+      .transition()
+      .duration(500)
+      .call(zoomsArr[floorIndex].transform, d3.zoomIdentity)
+      .transition()
+      .duration(600)
+      .call(zoomsArr[floorIndex].translateBy, translate[0], translate[1])
+      .transition()
+      .duration(600)
+      .call(zoomsArr[floorIndex].scaleBy, scale)
   }
-  let translate = [(WIDTH / 2 - 1 * cx), (HEIGHT / 2 - 1 * cy)];
-  svgArr[currentFloorIndex]
-  .transition()
-  .duration(1000)
-  .call(zoomsArr[currentFloorIndex].translateBy, translate[0], translate[1])
-  .transition()
-  .duration(1000)
-  .call(zoomsArr[currentFloorIndex].scaleBy, scale)
 }
+
+function removeSelectedAreas() {
+
+}
+
+function getTargetIdFromAreaObj(obj) {
+  return obj.id;
+}
+
+// catchTargetPlace(getFloorIndexAndObjectOfPlaceId(targetId));
+
+function searchChangeHandler(value) {
+  let floorIndex = 0;
+  let areaObj = null;
+
+  for (let i = 0; i < aeroPlans.length; i++) {
+    let areas = aeroPlans[i].areas;
+
+    floorIndex = i;
+    // console.log(areas);
+    areaObj = areas.find((place) => {
+      const synonyms = place.synonyms;
+      return synonyms.includes(value);
+    });
+
+    if (areaObj) {
+      break;
+    }
+  }
+
+  return {
+    floorIndex,
+    areaObj
+  };
+}
+
+console.log(searchChangeHandler('крутойс'));
