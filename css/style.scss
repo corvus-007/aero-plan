@@ -8,10 +8,25 @@ svg {
   outline: 1px solid #BCAAA4;
 }
 
-path {
-  &.hovered {
+.plan-place {
+  fill: #b5b0f7;
+  transition: 0.25s;
+
+  &--filtered {
+    fill: #4fb1ff;
+  }
+
+  &--selected {
     fill: #de4383;
   }
+
+  &--hovered {
+    fill: #8e89d8;
+  }
+}
+
+.plan-place-logo {
+  pointer-events: none;
 }
 
 .aero-plans {

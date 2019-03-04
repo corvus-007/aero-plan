@@ -1,8 +1,16 @@
 const WIDTH = 1105;
 const HEIGHT = 530;
-const FILTERED_TARGET_FILL = "#6eb6ff";
-MIN_ZOOM = 0.5;
-MAX_ZOOM = 2.5;
+const MIN_ZOOM = 0.5;
+const MAX_ZOOM = 4.5;
+const PLAN_PLACE_CLASS = `plan-place`;
+const PLAN_PLACE_HOVERED_CLASS = `plan-place--hovered`;
+const PLAN_PLACE_SELECTED_CLASS = `plan-place--selected`;
+const PLAN_PLACE_FILTERED_CLASS = `plan-place--filtered`;
+const PLAN_PLACE_LOGO_CLASS = `plan-place-logo`;
+const MAX_LOGO_WIDTH = 300;
+const MAX_LOGO_HEIGHT = 300;
+const KOEF_LOGO_SIZE = 0.7;
+// const FILTERED_TARGET_FILL = "#6ff";
 
 const category = {
   [`Одежда`]: 1,
@@ -13,7 +21,8 @@ const category = {
   [`Детские товары`]: 6,
   [`Книги и канцтовары`]: 7,
   [`Продукты питания`]: 8,
-  [`Бытовая техника и электроника`]: 9
+  [`Бытовая техника и электроника`]: 9,
+  [`Сотовая связь`]: 10
 };
 const forWho = {
   [`Все`]: 1,
@@ -21,28 +30,12 @@ const forWho = {
   [`Женская одежда`]: 3,
   [`Товары для детей`]: 4
 }
-
 const attrs = {
   fill: `#b5b0f7`
 };
-
 const form = document.querySelector("form");
 const plansWrapper = document.querySelector(`.aero-plans`);
 const zoomActionsContainer = document.querySelector(".zoom-actions");
-
-form.appendChild(renderFilterSelect(category, {
-  classStr: `select`,
-  name: `category`,
-  inactiveOption: `Выберите категорию`
-}));
-form.appendChild(renderFilterSelect(forWho, {
-  classStr: `select`,
-  name: `for-who`,
-  inactiveOption: `Для кого`
-}));
-
-
-
 const zoomActions = {
   reset: function (selection, zoom) {
     selection
@@ -63,11 +56,11 @@ const zoomActions = {
       .call(zoom.scaleBy, 1.25);
   }
 };
-
 const aeroPlans = [];
 const zoomsArr = []
 const svgArr = [];
-const gArr = [];
+const placesGArr = [];
+const placesPathsArr = [];
 
 const floor1 = {
   areas: [{
@@ -81,6 +74,7 @@ const floor1 = {
     {
       id: 2,
       title: `ZARA`,
+      logoSrc: `zara.svg`,
       synonyms: [`zara`, `зара`],
       description: `Одежда для современных людей`,
       category: new Set([category[`Одежда`]]),
@@ -90,7 +84,8 @@ const floor1 = {
     {
       id: 3,
       title: `Bershka`,
-      synonyms: [`Bershka`, `бершка`],
+      logoSrc: `bershka.svg`,
+      synonyms: [`bershka`, `бершка`],
       description: `Трендовая одежда, обувь и аксессуары`,
       path: `M486.6,256.3v25.1 h-62.4c-5.7-20.9-22.2-37.2-43.2-42.6l36.4-18v-33.7v-33.6v-0.1v-128h69.1V256.3z`,
       category: new Set([category[`Одежда`]])
@@ -98,7 +93,8 @@ const floor1 = {
     {
       id: 4,
       title: `H&M`,
-      synonyms: [`H&M`, `hm`, `ейч эм`],
+      logoSrc: `h&m.svg`,
+      synonyms: [`h&m`, `hm`, `ейч эм`],
       description: `Модная одежда для женщин, мужчин, подростков и детей`,
       path: `M-284.5,179.6v28.9v173 h-163.4l-0.5-173.8h91.7l0-28.1H-284.5z`,
       category: new Set([category[`Одежда`]])
@@ -106,10 +102,20 @@ const floor1 = {
     {
       id: 5,
       title: `Лента`,
+      logoSrc: `lenta.svg`,
       synonyms: [`Лента`, `lenta`],
       description: `Гипермаркет`,
       path: `M782.7,25.4h317.1 v510.1H782.7v-25.6v-24.9V25.4z`,
       category: new Set([category[`Продукты питания`]])
+    },
+    {
+      id: 50,
+      title: `TELE2`,
+      logoSrc: `tele2.svg`,
+      synonyms: [`tele2`, `теле2`],
+      description: `Оператор сотовой связи`,
+      path: `M690.5,431.4 712.9,431.4 712.9,453.7 690.5,453.7z`,
+      category: new Set([category[`Сотовая связь`]])
     }
   ]
 };
@@ -119,6 +125,7 @@ const floor2 = {
   areas: [{
       id: 6,
       title: `OBI`,
+      logoSrc: `obi.svg`,
       synonyms: [`OBI`, `оби`],
       description: `Строительный гипермаркет`,
       path: `M-496.4-49.1l-0.2,480 l-251.4,0.4v58.3l-76.6,0v15.9l-95.1,0l0.1-15.8l-82.3,0v-58.3l-315.2-0.4l0.5-480H-496.4z`,
@@ -127,6 +134,7 @@ const floor2 = {
     {
       id: 7,
       title: `Технопарк`,
+      logoSrc: `technopark.svg`,
       synonyms: [`Технопарк`],
       description: `Бытовая техника и электроника`,
       path: `M243.9226074,311.9947815 l-155.2497711,0.1965637v-50.125l-68.294281,0.138031V41.687439l223.5440521,0.4740143`,
@@ -135,6 +143,7 @@ const floor2 = {
     {
       id: 8,
       title: `Дочки-Сыночки`,
+      logoSrc: `dochkisinochki.svg`,
       synonyms: [`Дочки-Сыночки`, `Дочки Сыночки`, `Дочки`, `Сыночки`],
       description: `Товары для детей`,
       path: `M841.69,41.02 841.69,312.54 841.69,355.45 841.32,355.45 841.32,400.29 1044.79,400.29 1044.79,41.02 z`,
@@ -143,6 +152,7 @@ const floor2 = {
     {
       id: 9,
       title: `OSTIN`,
+      logoSrc: `ostin.svg`,
       synonyms: [`OSTIN`, `остин`],
       description: `Женская и мужская одежда`,
       path: `M22.4,408.7h128.4v12.8H201v103.9h-54.7v33.1 H34.4H22.4V408.7z`,
@@ -159,6 +169,7 @@ const floor2 = {
     {
       id: 11,
       title: `М.Видео`,
+      logoSrc: `mvideo.svg`,
       synonyms: [`М.Видео`, `МВидео`, `М Видео`],
       description: `Магазин бытовой техники и электроники`,
       path: `M9.587574-48.5962143 L8.3517342,178.1529236h-158.1085205v17.5948486h-129.0063934V43.5695572v-92.1657715H9.587574z`,
@@ -183,7 +194,7 @@ class ToggleFloors {
   }
 
   onClick(evt) {
-    console.log(this);
+    // console.log(this);
     const target = evt.target;
     const control = target.closest(`button`);
 
@@ -209,6 +220,17 @@ class ToggleFloors {
     });
   }
 }
+
+form.appendChild(renderFilterSelect(category, {
+  classStr: `select`,
+  name: `category`,
+  inactiveOption: `Выберите категорию`
+}));
+form.appendChild(renderFilterSelect(forWho, {
+  classStr: `select`,
+  name: `for-who`,
+  inactiveOption: `Для кого`
+}));
 
 const toggleFloorsItem = d3
   .select(`.aero-plans-toggle-floors`)
@@ -253,7 +275,7 @@ plansWrapper.addEventListener(`mouseover`, function (evt) {
   }
 
   currentPathNode = pathNode;
-  pathNode.classList.add(`hovered`);
+  pathNode.classList.add(PLAN_PLACE_HOVERED_CLASS);
 
   const title = `<h2>${pathNode.dataset.title}</h2>`;
   const description = `<p>${pathNode.dataset.description}</p>`;
@@ -267,12 +289,8 @@ plansWrapper.addEventListener(`mouseover`, function (evt) {
 plansWrapper.addEventListener(`mouseout`, function (evt) {
   if (evt.relatedTarget !== popper && currentPathNode) {
     popper.hidden = true;
-    currentPathNode.classList.remove(`hovered`);
+    currentPathNode.classList.remove(PLAN_PLACE_HOVERED_CLASS);
   }
-});
-
-popper.addEventListener(`mouseover`, function (evt) {
-
 });
 
 popper.addEventListener(`mouseleave`, function (evt) {
@@ -285,7 +303,7 @@ popper.addEventListener(`mouseleave`, function (evt) {
 
   if (pathNode !== currentPathNode || !pathNode) {
     popper.hidden = true;
-    currentPathNode.classList.remove(`hovered`);
+    currentPathNode.classList.remove(PLAN_PLACE_HOVERED_CLASS);
   }
 });
 
@@ -293,7 +311,6 @@ aeroPlans.forEach(renderPlan);
 
 function renderPlan(plan, planIndex) {
   const areas = plan.areas;
-
   const svg = d3
     .select(`.aero-plans`)
     .append(`div`)
@@ -309,79 +326,72 @@ function renderPlan(plan, planIndex) {
   // }).entries(areas);
   // console.log(nest);
 
-  const g = svg.append(`g`);
+  const placesG = svg.append(`g`).attr(`id`, `places`);
+  // const logosG = svg.append(`g`).attr(`id`, `logos`);
 
-  gArr.push(g);
+  placesGArr.push(placesG);
 
-  const zoom = d3
-    .zoom()
-    .scaleExtent([MIN_ZOOM, MAX_ZOOM])
-    // .translateExtent([[-100, -100], [WIDTH + 100, HEIGHT + 100]])
-    .on("zoom", zoomed);
-
-
-  zoomsArr.push(zoom);
-
-  const paths = g
+  const placesPaths = placesG
     .selectAll(`path`)
     .data(areas)
     .enter()
     .append(`path`);
 
-  paths
+  placesPathsArr.push(placesPaths);
+
+  placesPaths
     .attr(`data-title`, d => d.title)
     .attr(`data-description`, d => d.description)
     .attr(`data-place-id`, d => d.id)
     .attr(`d`, d => d.path)
-    .attr(`fill`, attrs.fill);
+    // .attr(`fill`, attrs.fill);
+    .classed(PLAN_PLACE_CLASS, true);
 
-  paths.on("click", function (d) {
+  placesPaths.on("click", function (d) {
     alert(`
         ${this.dataset.title}
         ${this.dataset.description}
       `);
   });
 
+  const logosImages = placesG.selectAll(`image`)
+    .data(areas)
+    .enter()
+    .append(`image`);
+
+  logosImages
+    .attr(`xlink:href`, (d) => {
+      return d.logoSrc ? `logos/${d.logoSrc}` : ``;
+    })
+    .attr(`width`, (d) => {
+      return calcImagePosition(d, `width`);
+    })
+    .attr(`height`, (d) => {
+      return calcImagePosition(d, `height`);
+    })
+    .attr(`x`, (d) => {
+      return calcImagePosition(d, `x`);
+    })
+    .attr(`y`, (d) => {
+      return calcImagePosition(d, `y`);
+    })
+    .classed(PLAN_PLACE_LOGO_CLASS, true);
+
+  // const logosPaths =
+  const zoom = d3
+    .zoom()
+    .scaleExtent([MIN_ZOOM, MAX_ZOOM])
+    // Раскомментить нижнюю строку полсе перерисовки плана, т.к. path'ы выходят за границу SVG
+    // .translateExtent([[-100, -100], [WIDTH + 100, HEIGHT + 100]])
+    .on("zoom", zoomed);
+
+  zoomsArr.push(zoom);
+
   function zoomed() {
     popperInstance.update();
-    // console.log(d3.event.transform);
 
-    g.attr("transform", d3.event.transform);
+    placesG.attr("transform", d3.event.transform);
   }
-
-  form.addEventListener("input", function (evt) {
-    const target = evt.target;
-    const select = target.closest(`select`);
-
-    if (!select) {
-      return;
-    }
-
-    const selectNodes = form.querySelectorAll(`select`);
-
-    [...selectNodes].forEach((it) => {
-      if (it !== select) {
-        it.selectedIndex = 0;
-      }
-    });
-
-    const filterName = select.name;
-    const filterValue = parseInt(select.value, 10);
-
-    const filteredPaths = paths
-      .attr(`fill`, attrs.fill)
-      .filter(d => {
-        if (d[filterName] instanceof Set) {
-          return d[filterName].has(filterValue)
-          // return d[filterName] == filterValue;
-        }
-      })
-      .attr(`fill`, FILTERED_TARGET_FILL);
-
-    const filteredPathsCount = filteredPaths.size();
-
-    d3.select(`.aero-plans-toggle-floors__item:nth-child(${planIndex+1})`).select(`span`).text(filteredPathsCount);
-  });
 
   svg.call(zoom);
 
@@ -391,6 +401,96 @@ function renderPlan(plan, planIndex) {
 
     if (action) {
       zoomActions[action](svg, zoom);
+    }
+  });
+}
+
+function calcImagePosition(d, property) {
+  if (!d.logoSrc) {
+    return 0;
+  }
+
+  const path = document.querySelector(`[data-place-id="${d.id}"]`);
+  const pathPosition = path.getBBox();
+
+  const pathX = pathPosition.x;
+  const pathY = pathPosition.y;
+  const pathW = pathPosition.width;
+  const pathH = pathPosition.height;
+
+  let logoW = pathW * KOEF_LOGO_SIZE;
+  let logoH = pathH * KOEF_LOGO_SIZE;
+
+  if (logoW > MAX_LOGO_WIDTH) {
+    logoW = MAX_LOGO_WIDTH;
+  }
+
+  if (logoH > MAX_LOGO_HEIGHT) {
+    logoH = MAX_LOGO_HEIGHT;
+  }
+
+  const logoX = pathX + pathW / 2 - logoW / 2;
+  const logoY = pathY + pathH / 2 - logoH / 2;
+
+  switch (property) {
+    case `width`:
+      return logoW;
+    case `height`:
+      return logoH;
+    case `x`:
+      return logoX;
+    case `y`:
+      return logoY;
+    default:
+      return 0;
+  }
+}
+
+form.addEventListener("input", inputFormHandler);
+form.addEventListener(`reset`, resetFormHandler);
+
+function inputFormHandler(evt) {
+  const target = evt.target;
+  const select = target.closest(`select`);
+
+  if (!select) {
+    return;
+  }
+
+  resetFilter(select);
+
+  const filterName = select.name;
+  const filterValue = parseInt(select.value, 10);
+
+  placesPathsArr.forEach((paths, planIndex) => {
+    const filteredPaths = paths
+      // .attr(`fill`, attrs.fill)
+      .classed(PLAN_PLACE_FILTERED_CLASS, false)
+      .filter(d => {
+        if (d[filterName] instanceof Set) {
+          return d[filterName].has(filterValue);
+          // return d[filterName] == filterValue;
+        }
+      })
+      .classed(PLAN_PLACE_FILTERED_CLASS, true);
+    // .attr(`fill`, FILTERED_TARGET_FILL);
+
+    const filteredPathsCount = filteredPaths.size();
+
+    d3.select(`.aero-plans-toggle-floors__item:nth-child(${planIndex+1})`).select(`span`).text(filteredPathsCount);
+  });
+}
+
+function resetFormHandler(evt) {
+  removeFilteredAreas();
+}
+
+function resetFilter(currentSelectNode) {
+  const selectNodes = form.querySelectorAll(`select`);
+
+  [...selectNodes].forEach((it) => {
+    if (it !== currentSelectNode) {
+      it.selectedIndex = 0;
     }
   });
 }
@@ -435,9 +535,6 @@ function createZoomControls() {
 
 }
 
-// targetId - id магазина (области)
-// const targetId = parseInt('9', 10);
-
 function getFloorIndexAndObjectOfPlaceId(id) {
   let floorIndex = 0;
   let areaObj = null;
@@ -446,7 +543,7 @@ function getFloorIndexAndObjectOfPlaceId(id) {
     let currentFloor = aeroPlans[currentFloorIndex];
 
     areaObj = _.find(currentFloor.areas, function (o) {
-      return o.id == targetId;
+      return o.id == id;
     });
 
     if (areaObj) {
@@ -463,66 +560,74 @@ function getFloorIndexAndObjectOfPlaceId(id) {
 
 const aeroPlansToggleFloors = document.querySelector(`.aero-plans-toggle-floors`);
 const aeroPlansFloors = document.querySelectorAll(`.aero-plans__floor`);
-
-
 const toggleFloors = new ToggleFloors(aeroPlansToggleFloors, aeroPlansFloors);
 
 function catchTargetPlace({
   floorIndex,
   areaObj
 }) {
-  // const floorIndex = getFloorIndexAndObjectOfPlaceId(targetId).floorIndex;
+  if (!areaObj) {
+    return;
+  }
+
   let targetId = getTargetIdFromAreaObj(areaObj);
   let place = document.querySelector(`[data-place-id="${targetId}"]`);
 
-  if (place) {
-    toggleFloors.changeTabContent(floorIndex + 1);
-    place.classList.add('hovered');
-    let placeBBox = place.getBBox();
-    let cx = placeBBox.x + placeBBox.width / 2;
-    let cy = placeBBox.y + placeBBox.height / 2;
-    let scale = 0.95 * Math.min(WIDTH / placeBBox.width, HEIGHT / placeBBox.height);
-    if (scale < MIN_ZOOM) {
-      scale = MIN_ZOOM
-    } else if (scale > MAX_ZOOM) {
-      scale = MAX_ZOOM;
-    }
-    let translate = [(WIDTH / 2 - 1 * cx), (HEIGHT / 2 - 1 * cy)];
-    svgArr[floorIndex]
-      .transition()
-      .duration(500)
-      .call(zoomsArr[floorIndex].transform, d3.zoomIdentity)
-      .transition()
-      .duration(600)
-      .call(zoomsArr[floorIndex].translateBy, translate[0], translate[1])
-      .transition()
-      .duration(600)
-      .call(zoomsArr[floorIndex].scaleBy, scale)
+  removeSelectedAreas();
+
+  toggleFloors.changeTabContent(floorIndex + 1);
+  place.classList.add(PLAN_PLACE_SELECTED_CLASS);
+  let placeBBox = place.getBBox();
+  let cx = placeBBox.x + placeBBox.width / 2;
+  let cy = placeBBox.y + placeBBox.height / 2;
+  let scale = 0.95 * Math.min(WIDTH / placeBBox.width, HEIGHT / placeBBox.height);
+
+  if (scale < MIN_ZOOM) {
+    scale = MIN_ZOOM
+  } else if (scale > MAX_ZOOM) {
+    scale = MAX_ZOOM;
   }
+
+  let translate = [(WIDTH / 2 - scale * cx), (HEIGHT / 2 - scale * cy)];
+
+  svgArr[floorIndex]
+    .transition()
+    .duration(800)
+    .call(zoomsArr[floorIndex].transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
 }
 
 function removeSelectedAreas() {
+  const selectedPaths = document.querySelectorAll(`.${PLAN_PLACE_SELECTED_CLASS}`);
+  [...selectedPaths].forEach((it) => {
+    it.classList.remove(PLAN_PLACE_SELECTED_CLASS);
+  });
+}
 
+function removeFilteredAreas() {
+  const selectedPaths = document.querySelectorAll(`.${PLAN_PLACE_FILTERED_CLASS}`);
+  [...selectedPaths].forEach((it) => {
+    it.classList.remove(PLAN_PLACE_FILTERED_CLASS);
+  });
 }
 
 function getTargetIdFromAreaObj(obj) {
   return obj.id;
 }
 
-// catchTargetPlace(getFloorIndexAndObjectOfPlaceId(targetId));
+// Переход со страницы магазина по указанному id
+// catchTargetPlace(getFloorIndexAndObjectOfPlaceId(6));
 
 function searchChangeHandler(value) {
+  const optimValue = value.toLowerCase().trim();
   let floorIndex = 0;
   let areaObj = null;
 
   for (let i = 0; i < aeroPlans.length; i++) {
     let areas = aeroPlans[i].areas;
-
     floorIndex = i;
-    // console.log(areas);
     areaObj = areas.find((place) => {
-      const synonyms = place.synonyms;
-      return synonyms.includes(value);
+      const synonyms = place.synonyms.map((word) => word.toLowerCase().trim());
+      return synonyms.includes(optimValue);
     });
 
     if (areaObj) {
@@ -536,4 +641,5 @@ function searchChangeHandler(value) {
   };
 }
 
-console.log(searchChangeHandler('крутойс'));
+// Поиск по названию
+catchTargetPlace(searchChangeHandler('крутойс'));
