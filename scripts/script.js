@@ -10,6 +10,10 @@ const PLAN_PLACE_LOGO_CLASS = `plan-place-logo`;
 const MAX_LOGO_WIDTH = 300;
 const MAX_LOGO_HEIGHT = 300;
 const KOEF_LOGO_SIZE = 0.7;
+const url = new URL(window.location);
+const params = new URLSearchParams(url.search);
+const placeId = params.get(`place_id`);
+
 // const FILTERED_TARGET_FILL = "#6ff";
 
 const category = {
@@ -33,7 +37,8 @@ const forWho = {
 const attrs = {
   fill: `#b5b0f7`
 };
-const form = document.querySelector("form");
+const filterForm = document.querySelector(`[data-plans-filter-form]`);
+const searchForm = document.querySelector(`[data-plans-search-form]`);
 const plansWrapper = document.querySelector(`.aero-plans`);
 const zoomActionsContainer = document.querySelector(".zoom-actions");
 const zoomActions = {
@@ -80,6 +85,7 @@ const floor1 = {
       category: new Set([category[`Одежда`]]),
       'for-who': new Set([forWho[`Мужская одежда`], forWho[`Женская одежда`]]),
       path: `M312.6,25.4l0.6,240.6 c-3,4.8-5.4,10.1-6.9,15.7H125.1V25.4H312.6z`,
+      path: `M300.5,0.5l0.96,384.96c-4.8,7.68-8.64,16.16-11.04,25.12H0.5V0.5H300.5z`,
     },
     {
       id: 3,
@@ -115,7 +121,7 @@ const floor1 = {
       synonyms: [`tele2`, `теле2`],
       description: `Оператор сотовой связи`,
       path: `M690.5,431.4 712.9,431.4 712.9,453.7 690.5,453.7z`,
-      category: new Set([category[`Сотовая связь`]])
+      category: new Set([category[`Сотовая связь`], category[`Бытовая техника и электроника`]])
     }
   ]
 };
@@ -170,7 +176,7 @@ const floor2 = {
       id: 11,
       title: `М.Видео`,
       logoSrc: `mvideo.svg`,
-      synonyms: [`М.Видео`, `МВидео`, `М Видео`],
+      synonyms: [`М.Видео`, `МВидео`, `М Видео`, `mvideo`],
       description: `Магазин бытовой техники и электроники`,
       path: `M9.587574-48.5962143 L8.3517342,178.1529236h-158.1085205v17.5948486h-129.0063934V43.5695572v-92.1657715H9.587574z`,
       category: new Set([category[`Бытовая техника и электроника`]])
@@ -221,16 +227,16 @@ class ToggleFloors {
   }
 }
 
-form.appendChild(renderFilterSelect(category, {
+filterForm.insertBefore(renderFilterSelect(category, {
   classStr: `select`,
   name: `category`,
-  inactiveOption: `Выберите категорию`
-}));
-form.appendChild(renderFilterSelect(forWho, {
+  inactiveOptionText: `Выберите категорию`
+}), filterForm.lastElementChild);
+filterForm.insertBefore(renderFilterSelect(forWho, {
   classStr: `select`,
   name: `for-who`,
-  inactiveOption: `Для кого`
-}));
+  inactiveOptionText: `Для кого`
+}), filterForm.lastElementChild);
 
 const toggleFloorsItem = d3
   .select(`.aero-plans-toggle-floors`)
@@ -316,7 +322,7 @@ function renderPlan(plan, planIndex) {
     .append(`div`)
     .classed(`aero-plans__floor`, true)
     .append(`svg`)
-    .attr(`width`, `1105`)
+    // .attr(`width`, `1105`)
     .attr(`viewBox`, `0 0 ${WIDTH} ${HEIGHT}`);
 
   svgArr.push(svg);
@@ -361,7 +367,7 @@ function renderPlan(plan, planIndex) {
 
   logosImages
     .attr(`xlink:href`, (d) => {
-      return d.logoSrc ? `logos/${d.logoSrc}` : ``;
+      return getPathToImage(d, planIndex);
     })
     .attr(`width`, (d) => {
       return calcImagePosition(d, `width`);
@@ -377,7 +383,6 @@ function renderPlan(plan, planIndex) {
     })
     .classed(PLAN_PLACE_LOGO_CLASS, true);
 
-  // const logosPaths =
   const zoom = d3
     .zoom()
     .scaleExtent([MIN_ZOOM, MAX_ZOOM])
@@ -403,6 +408,21 @@ function renderPlan(plan, planIndex) {
       zoomActions[action](svg, zoom);
     }
   });
+}
+
+const aeroPlansToggleFloors = document.querySelector(`.aero-plans-toggle-floors`);
+const aeroPlansFloors = document.querySelectorAll(`.aero-plans__floor`);
+const toggleFloors = new ToggleFloors(aeroPlansToggleFloors, aeroPlansFloors);
+
+searchForm.addEventListener(`submit`, searchFormSubmitHandler);
+filterForm.addEventListener("input", inputFormHandler);
+filterForm.addEventListener(`reset`, resetFormHandler);
+
+// Переход со страницы магазина по указанному id
+catchTargetPlace(getFloorIndexAndObjectOfPlaceId(placeId));
+
+function getPathToImage(d, index) {
+  return d.logoSrc ? `logos/floor_${index+1}/${d.logoSrc}` : ``;
 }
 
 function calcImagePosition(d, property) {
@@ -446,9 +466,6 @@ function calcImagePosition(d, property) {
   }
 }
 
-form.addEventListener("input", inputFormHandler);
-form.addEventListener(`reset`, resetFormHandler);
-
 function inputFormHandler(evt) {
   const target = evt.target;
   const select = target.closest(`select`);
@@ -464,16 +481,13 @@ function inputFormHandler(evt) {
 
   placesPathsArr.forEach((paths, planIndex) => {
     const filteredPaths = paths
-      // .attr(`fill`, attrs.fill)
       .classed(PLAN_PLACE_FILTERED_CLASS, false)
       .filter(d => {
         if (d[filterName] instanceof Set) {
           return d[filterName].has(filterValue);
-          // return d[filterName] == filterValue;
         }
       })
       .classed(PLAN_PLACE_FILTERED_CLASS, true);
-    // .attr(`fill`, FILTERED_TARGET_FILL);
 
     const filteredPathsCount = filteredPaths.size();
 
@@ -486,7 +500,7 @@ function resetFormHandler(evt) {
 }
 
 function resetFilter(currentSelectNode) {
-  const selectNodes = form.querySelectorAll(`select`);
+  const selectNodes = filterForm.querySelectorAll(`select`);
 
   [...selectNodes].forEach((it) => {
     if (it !== currentSelectNode) {
@@ -498,34 +512,29 @@ function resetFilter(currentSelectNode) {
 function renderFilterSelect(listName, {
   classStr = ``,
   name = ``,
-  inactiveOption = ``
+  inactiveOptionText = ``
 }) {
   const select = document.createElement(`select`);
 
   select.setAttribute(`name`, name);
   select.setAttribute(`class`, classStr);
-  select.appendChild(createOptionsList(listName, inactiveOption));
+  select.appendChild(createOptionsList(listName, inactiveOptionText));
 
   return select;
 }
 
-function createOptionsList(list, inactiveOption) {
+function createOptionsList(list, inactiveOptionText) {
   const optionsFragment = document.createDocumentFragment();
 
-  if (inactiveOption) {
-    let inactiveOptionEl = document.createElement(`option`);
+  if (inactiveOptionText) {
+    let inactiveOptionEl = new Option(inactiveOptionText, null, false, true);
     inactiveOptionEl.disabled = true;
-    // inactiveOptionEl.selected = true;
-    inactiveOptionEl.setAttribute('selected', '');
-    inactiveOptionEl.textContent = inactiveOption;
     optionsFragment.appendChild(inactiveOptionEl);
   }
 
   for (let item in list) {
-    let option = document.createElement(`option`);
-    option.value = list[item];
-    option.textContent = item;
-    optionsFragment.appendChild(option);
+    let optionEl = new Option(item, list[item])
+    optionsFragment.appendChild(optionEl);
   }
 
   return optionsFragment;
@@ -557,10 +566,6 @@ function getFloorIndexAndObjectOfPlaceId(id) {
     areaObj
   };
 }
-
-const aeroPlansToggleFloors = document.querySelector(`.aero-plans-toggle-floors`);
-const aeroPlansFloors = document.querySelectorAll(`.aero-plans__floor`);
-const toggleFloors = new ToggleFloors(aeroPlansToggleFloors, aeroPlansFloors);
 
 function catchTargetPlace({
   floorIndex,
@@ -614,10 +619,16 @@ function getTargetIdFromAreaObj(obj) {
   return obj.id;
 }
 
-// Переход со страницы магазина по указанному id
-// catchTargetPlace(getFloorIndexAndObjectOfPlaceId(6));
+function searchFormSubmitHandler(evt) {
+  evt.preventDefault();
+  const inputNode = searchForm.querySelector(`[name="nameOfPlace"]`);
+  const value = inputNode.value;
 
-function searchChangeHandler(value) {
+  // Поиск по названию
+  catchTargetPlace(getFloorIndexAndObjectOfPlaceIdOnSearch(value));
+}
+
+function getFloorIndexAndObjectOfPlaceIdOnSearch(value) {
   const optimValue = value.toLowerCase().trim();
   let floorIndex = 0;
   let areaObj = null;
@@ -627,6 +638,7 @@ function searchChangeHandler(value) {
     floorIndex = i;
     areaObj = areas.find((place) => {
       const synonyms = place.synonyms.map((word) => word.toLowerCase().trim());
+
       return synonyms.includes(optimValue);
     });
 
@@ -640,6 +652,3 @@ function searchChangeHandler(value) {
     areaObj
   };
 }
-
-// Поиск по названию
-catchTargetPlace(searchChangeHandler('крутойс'));

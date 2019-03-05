@@ -12,16 +12,25 @@ svg {
   fill: #b5b0f7;
   transition: 0.25s;
 
+  &--hovered {
+    fill: #8e89d8;
+    fill: darken(#b5b0f7, 8%);
+  }
+
   &--filtered {
     fill: #4fb1ff;
+
+    &.plan-place--hovered {
+      fill: darken(#4fb1ff, 8%);
+    }
   }
 
   &--selected {
     fill: #de4383;
-  }
 
-  &--hovered {
-    fill: #8e89d8;
+    &.plan-place--hovered {
+      fill: darken(#de4383, 8%);
+    }
   }
 }
 
