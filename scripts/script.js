@@ -224,7 +224,7 @@ const floor2 = {
       points: [{
         title: `Фудкорт`,
         position: [953.5, 500]
-      }, ]
+      }]
     }
   ]
 };
@@ -406,7 +406,6 @@ function renderPlan(plan, planIndex) {
           .selectAll(`use`)
           .data(points)
           .enter()
-          .append(`g`)
           .append(`use`)
           .attr(`data-title`, (d) => d.title)
           .attr(`xlink:href`, `#${symbolId}`)
