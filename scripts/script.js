@@ -28,6 +28,7 @@ const category = {
   [`Бытовая техника и электроника`]: 9,
   [`Сотовая связь`]: 10
 };
+
 const forWho = {
   [`Все`]: 1,
   [`Мужская одежда`]: 2,
@@ -64,7 +65,7 @@ const zoomActions = {
 const aeroPlans = [];
 const zoomsArr = []
 const svgArr = [];
-const placesGArr = [];
+const mainsGArr = [];
 const placesPathsArr = [];
 
 const floor1 = {
@@ -85,7 +86,6 @@ const floor1 = {
       category: new Set([category[`Одежда`]]),
       'for-who': new Set([forWho[`Мужская одежда`], forWho[`Женская одежда`]]),
       path: `M312.6,25.4l0.6,240.6 c-3,4.8-5.4,10.1-6.9,15.7H125.1V25.4H312.6z`,
-      path: `M300.5,0.5l0.96,384.96c-4.8,7.68-8.64,16.16-11.04,25.12H0.5V0.5H300.5z`,
     },
     {
       id: 3,
@@ -122,6 +122,31 @@ const floor1 = {
       description: `Оператор сотовой связи`,
       path: `M690.5,431.4 712.9,431.4 712.9,453.7 690.5,453.7z`,
       category: new Set([category[`Сотовая связь`], category[`Бытовая техника и электроника`]])
+    }
+  ],
+  markers: [{
+      symbolId: `elevator`,
+      points: [{
+          title: `Лифт`,
+          position: [746.5, 75.5]
+        },
+        {
+          title: `Лифт`,
+          position: [446.5, 75.5]
+        }
+      ]
+    },
+    {
+      symbolId: `parking`,
+      points: [{
+          title: `Парковка`,
+          position: [841.5, 498.5]
+        },
+        {
+          title: `Парковка`,
+          position: [541.5, 498.5]
+        }
+      ]
     }
   ]
 };
@@ -181,6 +206,26 @@ const floor2 = {
       path: `M9.587574-48.5962143 L8.3517342,178.1529236h-158.1085205v17.5948486h-129.0063934V43.5695572v-92.1657715H9.587574z`,
       category: new Set([category[`Бытовая техника и электроника`]])
     }
+  ],
+  markers: [{
+      symbolId: `elevator`,
+      points: [{
+          title: `Лифт`,
+          position: [746.5, 75.5]
+        },
+        {
+          title: `Лифт`,
+          position: [446.5, 75.5]
+        }
+      ]
+    },
+    {
+      symbolId: `foodcourt`,
+      points: [{
+        title: `Фудкорт`,
+        position: [953.5, 500]
+      }, ]
+    }
   ]
 };
 aeroPlans.push(floor2);
@@ -232,6 +277,7 @@ filterForm.insertBefore(renderFilterSelect(category, {
   name: `category`,
   inactiveOptionText: `Выберите категорию`
 }), filterForm.lastElementChild);
+
 filterForm.insertBefore(renderFilterSelect(forWho, {
   classStr: `select`,
   name: `for-who`,
@@ -262,11 +308,11 @@ toggleFloorsItem
   .append(`span`)
 
 const reference = document.documentElement;
-const popper = document.querySelector('.my-popper');
+const popper = document.querySelector(`.my-popper`);
 const popperInstance = new Popper(reference, popper, {
   modifiers: {
     preventOverflow: {
-      boundariesElement: document.querySelector('.aero-plans')
+      boundariesElement: document.querySelector(`.aero-plans`)
     }
   }
 });
@@ -274,7 +320,7 @@ let currentPathNode = null;
 
 plansWrapper.addEventListener(`mouseover`, function (evt) {
   const target = evt.target;
-  const pathNode = target.closest(`path`);
+  const pathNode = target.closest(`.plan-place`) || target.closest(`use`);
 
   if (!pathNode) {
     return;
@@ -283,10 +329,13 @@ plansWrapper.addEventListener(`mouseover`, function (evt) {
   currentPathNode = pathNode;
   pathNode.classList.add(PLAN_PLACE_HOVERED_CLASS);
 
-  const title = `<h2>${pathNode.dataset.title}</h2>`;
-  const description = `<p>${pathNode.dataset.description}</p>`;
+  const title = pathNode.dataset.title;
+  const description = pathNode.dataset.description || ``;
 
-  popper.innerHTML = title + description;
+  popper.innerHTML = `
+    <h2>${title}</h2>
+    <p>${description}</p>
+  `;
   popperInstance.update();
   popperInstance.reference = pathNode;
   popper.hidden = false;
@@ -317,6 +366,8 @@ aeroPlans.forEach(renderPlan);
 
 function renderPlan(plan, planIndex) {
   const areas = plan.areas;
+  const markers = plan.markers;
+
   const svg = d3
     .select(`.aero-plans`)
     .append(`div`)
@@ -332,10 +383,39 @@ function renderPlan(plan, planIndex) {
   // }).entries(areas);
   // console.log(nest);
 
-  const placesG = svg.append(`g`).attr(`id`, `places`);
-  // const logosG = svg.append(`g`).attr(`id`, `logos`);
+  const mainG = svg.append(`g`).attr(`id`, `main-group`);
+  const placesG = mainG.append(`g`).attr(`id`, `places-group`);
+  const logosG = mainG.append(`g`).attr(`id`, `logos-group`);
+  const markersG = mainG.append(`g`).attr(`id`, `markers-group`);
 
-  placesGArr.push(placesG);
+  mainsGArr.push(mainG);
+
+  // console.log(markers);
+
+  if (markers) {
+    markersG
+      .selectAll(`g`)
+      .data(markers)
+      .enter()
+      .append(`g`)
+      .each(function (d) {
+        const symbolId = d.symbolId;
+        const points = d.points;
+
+        d3.select(this)
+          .selectAll(`use`)
+          .data(points)
+          .enter()
+          .append(`g`)
+          .append(`use`)
+          .attr(`data-title`, (d) => d.title)
+          .attr(`xlink:href`, `#${symbolId}`)
+          .attr(`width`, 32)
+          .attr(`height`, 32)
+          .attr(`transform`, (d) => `translate(${d.position[0]} ${d.position[1]})`)
+      })
+  }
+
 
   const placesPaths = placesG
     .selectAll(`path`)
@@ -360,7 +440,7 @@ function renderPlan(plan, planIndex) {
       `);
   });
 
-  const logosImages = placesG.selectAll(`image`)
+  const logosImages = logosG.selectAll(`image`)
     .data(areas)
     .enter()
     .append(`image`);
@@ -370,23 +450,23 @@ function renderPlan(plan, planIndex) {
       return getPathToImage(d, planIndex);
     })
     .attr(`width`, (d) => {
-      return calcImagePosition(d, `width`);
+      return calcLogoPosition(d, `width`);
     })
     .attr(`height`, (d) => {
-      return calcImagePosition(d, `height`);
+      return calcLogoPosition(d, `height`);
     })
     .attr(`x`, (d) => {
-      return calcImagePosition(d, `x`);
+      return calcLogoPosition(d, `x`);
     })
     .attr(`y`, (d) => {
-      return calcImagePosition(d, `y`);
+      return calcLogoPosition(d, `y`);
     })
     .classed(PLAN_PLACE_LOGO_CLASS, true);
 
   const zoom = d3
     .zoom()
     .scaleExtent([MIN_ZOOM, MAX_ZOOM])
-    // Раскомментить нижнюю строку полсе перерисовки плана, т.к. path'ы выходят за границу SVG
+    // Раскомментить нижнюю строку после перерисовки плана, т.к. path'ы выходят за границу SVG и нужно
     // .translateExtent([[-100, -100], [WIDTH + 100, HEIGHT + 100]])
     .on("zoom", zoomed);
 
@@ -395,7 +475,7 @@ function renderPlan(plan, planIndex) {
   function zoomed() {
     popperInstance.update();
 
-    placesG.attr("transform", d3.event.transform);
+    mainG.attr("transform", d3.event.transform);
   }
 
   svg.call(zoom);
@@ -425,7 +505,59 @@ function getPathToImage(d, index) {
   return d.logoSrc ? `logos/floor_${index+1}/${d.logoSrc}` : ``;
 }
 
-function calcImagePosition(d, property) {
+function inputFormHandler(evt) {
+  const target = evt.target;
+  const select = target.closest(`select`);
+
+  if (!select) {
+    return;
+  }
+
+  resetFilter(select);
+
+  const filterName = select.name;
+  const filterValue = parseInt(select.value, 10);
+
+  placesPathsArr.forEach((paths, planIndex) => {
+    const filteredPaths = paths
+      .classed(PLAN_PLACE_FILTERED_CLASS, false)
+      .filter(d => {
+        if (d[filterName] instanceof Set) {
+          return d[filterName].has(filterValue);
+        }
+      })
+      .classed(PLAN_PLACE_FILTERED_CLASS, true);
+
+    const filteredPathsCount = filteredPaths.size();
+
+    d3.select(`.aero-plans-toggle-floors__item:nth-child(${planIndex+1})`).select(`span`).text(filteredPathsCount);
+  });
+}
+
+function resetFormHandler(evt) {
+  removeFilteredAreas();
+}
+
+function searchFormSubmitHandler(evt) {
+  evt.preventDefault();
+  const inputNode = searchForm.querySelector(`[name="nameOfPlace"]`);
+  const value = inputNode.value;
+
+  // Поиск по названию
+  catchTargetPlace(getFloorIndexAndObjectOfPlaceIdOnSearch(value));
+}
+
+function resetFilter(currentSelectNode) {
+  const selectNodes = filterForm.querySelectorAll(`select`);
+
+  [...selectNodes].forEach((it) => {
+    if (it !== currentSelectNode) {
+      it.selectedIndex = 0;
+    }
+  });
+}
+
+function calcLogoPosition(d, property) {
   if (!d.logoSrc) {
     return 0;
   }
@@ -466,49 +598,6 @@ function calcImagePosition(d, property) {
   }
 }
 
-function inputFormHandler(evt) {
-  const target = evt.target;
-  const select = target.closest(`select`);
-
-  if (!select) {
-    return;
-  }
-
-  resetFilter(select);
-
-  const filterName = select.name;
-  const filterValue = parseInt(select.value, 10);
-
-  placesPathsArr.forEach((paths, planIndex) => {
-    const filteredPaths = paths
-      .classed(PLAN_PLACE_FILTERED_CLASS, false)
-      .filter(d => {
-        if (d[filterName] instanceof Set) {
-          return d[filterName].has(filterValue);
-        }
-      })
-      .classed(PLAN_PLACE_FILTERED_CLASS, true);
-
-    const filteredPathsCount = filteredPaths.size();
-
-    d3.select(`.aero-plans-toggle-floors__item:nth-child(${planIndex+1})`).select(`span`).text(filteredPathsCount);
-  });
-}
-
-function resetFormHandler(evt) {
-  removeFilteredAreas();
-}
-
-function resetFilter(currentSelectNode) {
-  const selectNodes = filterForm.querySelectorAll(`select`);
-
-  [...selectNodes].forEach((it) => {
-    if (it !== currentSelectNode) {
-      it.selectedIndex = 0;
-    }
-  });
-}
-
 function renderFilterSelect(listName, {
   classStr = ``,
   name = ``,
@@ -542,29 +631,6 @@ function createOptionsList(list, inactiveOptionText) {
 
 function createZoomControls() {
 
-}
-
-function getFloorIndexAndObjectOfPlaceId(id) {
-  let floorIndex = 0;
-  let areaObj = null;
-
-  for (let currentFloorIndex = 0; currentFloorIndex < aeroPlans.length; currentFloorIndex++) {
-    let currentFloor = aeroPlans[currentFloorIndex];
-
-    areaObj = _.find(currentFloor.areas, function (o) {
-      return o.id == id;
-    });
-
-    if (areaObj) {
-      floorIndex = currentFloorIndex;
-      break;
-    }
-  }
-
-  return {
-    floorIndex,
-    areaObj
-  };
 }
 
 function catchTargetPlace({
@@ -615,21 +681,35 @@ function removeFilteredAreas() {
   });
 }
 
-function getTargetIdFromAreaObj(obj) {
-  return obj.id;
+function getTargetIdFromAreaObj(placeObj) {
+  return placeObj.id;
 }
 
-function searchFormSubmitHandler(evt) {
-  evt.preventDefault();
-  const inputNode = searchForm.querySelector(`[name="nameOfPlace"]`);
-  const value = inputNode.value;
+function getFloorIndexAndObjectOfPlaceId(id) {
+  id = parseInt(id, 10);
+  let floorIndex = 0;
+  let areaObj = null;
 
-  // Поиск по названию
-  catchTargetPlace(getFloorIndexAndObjectOfPlaceIdOnSearch(value));
+  for (let i = 0; i < aeroPlans.length; i++) {
+    let areas = aeroPlans[i].areas;
+    floorIndex = i;
+    areaObj = areas.find((place) => {
+      return place.id === id;
+    });
+
+    if (areaObj) {
+      break;
+    }
+  }
+
+  return {
+    floorIndex,
+    areaObj
+  };
 }
 
 function getFloorIndexAndObjectOfPlaceIdOnSearch(value) {
-  const optimValue = value.toLowerCase().trim();
+  value = value.toLowerCase().trim();
   let floorIndex = 0;
   let areaObj = null;
 
@@ -639,7 +719,7 @@ function getFloorIndexAndObjectOfPlaceIdOnSearch(value) {
     areaObj = areas.find((place) => {
       const synonyms = place.synonyms.map((word) => word.toLowerCase().trim());
 
-      return synonyms.includes(optimValue);
+      return synonyms.includes(value);
     });
 
     if (areaObj) {
