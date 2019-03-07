@@ -1,3 +1,11 @@
+import {
+  category,
+  forWho
+} from './filter-options.js';
+import ToggleFloors from './toggle-floors.js';
+import floor1 from './floor-1.js';
+import floor2 from './floor-2.js';
+
 const WIDTH = 1105;
 const HEIGHT = 530;
 const MIN_ZOOM = 0.5;
@@ -10,34 +18,17 @@ const PLAN_PLACE_LOGO_CLASS = `plan-place-logo`;
 const MAX_LOGO_WIDTH = 300;
 const MAX_LOGO_HEIGHT = 300;
 const KOEF_LOGO_SIZE = 0.7;
+const MARKER_SIZE = 32;
 const url = new URL(window.location);
 const params = new URLSearchParams(url.search);
 const placeId = params.get(`place_id`);
 
 // const FILTERED_TARGET_FILL = "#6ff";
 
-const category = {
-  [`Одежда`]: 1,
-  [`Обувь`]: 2,
-  [`Бельё`]: 3,
-  [`Головные уборы`]: 4,
-  [`Товары для дома`]: 5,
-  [`Детские товары`]: 6,
-  [`Книги и канцтовары`]: 7,
-  [`Продукты питания`]: 8,
-  [`Бытовая техника и электроника`]: 9,
-  [`Сотовая связь`]: 10
-};
+// const attrs = {
+//   fill: `#b5b0f7`
+// };
 
-const forWho = {
-  [`Все`]: 1,
-  [`Мужская одежда`]: 2,
-  [`Женская одежда`]: 3,
-  [`Товары для детей`]: 4
-}
-const attrs = {
-  fill: `#b5b0f7`
-};
 const filterForm = document.querySelector(`[data-plans-filter-form]`);
 const searchForm = document.querySelector(`[data-plans-search-form]`);
 const plansWrapper = document.querySelector(`.aero-plans`);
@@ -68,209 +59,12 @@ const svgArr = [];
 const mainsGArr = [];
 const placesPathsArr = [];
 
-const floor1 = {
-  areas: [{
-      id: 1,
-      title: `KARI`,
-      synonyms: [`кари`, `kari`],
-      description: `Обувной магазин`,
-      path: `M-284.7,179.1h-72.7v28 h-91.1l-0.2-95.2l163.7,0L-284.7,179.1z`,
-      category: new Set([category[`Обувь`]])
-    },
-    {
-      id: 2,
-      title: `ZARA`,
-      logoSrc: `zara.svg`,
-      synonyms: [`zara`, `зара`],
-      description: `Одежда для современных людей`,
-      category: new Set([category[`Одежда`]]),
-      'for-who': new Set([forWho[`Мужская одежда`], forWho[`Женская одежда`]]),
-      path: `M312.6,25.4l0.6,240.6 c-3,4.8-5.4,10.1-6.9,15.7H125.1V25.4H312.6z`,
-    },
-    {
-      id: 3,
-      title: `Bershka`,
-      logoSrc: `bershka.svg`,
-      synonyms: [`bershka`, `бершка`],
-      description: `Трендовая одежда, обувь и аксессуары`,
-      path: `M486.6,256.3v25.1 h-62.4c-5.7-20.9-22.2-37.2-43.2-42.6l36.4-18v-33.7v-33.6v-0.1v-128h69.1V256.3z`,
-      category: new Set([category[`Одежда`]])
-    },
-    {
-      id: 4,
-      title: `H&M`,
-      logoSrc: `h&m.svg`,
-      synonyms: [`h&m`, `hm`, `ейч эм`],
-      description: `Модная одежда для женщин, мужчин, подростков и детей`,
-      path: `M-284.5,179.6v28.9v173 h-163.4l-0.5-173.8h91.7l0-28.1H-284.5z`,
-      category: new Set([category[`Одежда`]])
-    },
-    {
-      id: 5,
-      title: `Лента`,
-      logoSrc: `lenta.svg`,
-      synonyms: [`Лента`, `lenta`],
-      description: `Гипермаркет`,
-      path: `M782.7,25.4h317.1 v510.1H782.7v-25.6v-24.9V25.4z`,
-      category: new Set([category[`Продукты питания`]])
-    },
-    {
-      id: 50,
-      title: `TELE2`,
-      logoSrc: `tele2.svg`,
-      synonyms: [`tele2`, `теле2`],
-      description: `Оператор сотовой связи`,
-      path: `M690.5,431.4 712.9,431.4 712.9,453.7 690.5,453.7z`,
-      category: new Set([category[`Сотовая связь`], category[`Бытовая техника и электроника`]])
-    }
-  ],
-  markers: [{
-      symbolId: `elevator`,
-      points: [{
-          title: `Лифт`,
-          position: [746.5, 75.5]
-        },
-        {
-          title: `Лифт`,
-          position: [446.5, 75.5]
-        }
-      ]
-    },
-    {
-      symbolId: `parking`,
-      points: [{
-          title: `Парковка`,
-          position: [841.5, 498.5]
-        },
-        {
-          title: `Парковка`,
-          position: [541.5, 498.5]
-        }
-      ]
-    }
-  ]
-};
+
 aeroPlans.push(floor1);
 
-const floor2 = {
-  areas: [{
-      id: 6,
-      title: `OBI`,
-      logoSrc: `obi.svg`,
-      synonyms: [`OBI`, `оби`],
-      description: `Строительный гипермаркет`,
-      path: `M-496.4-49.1l-0.2,480 l-251.4,0.4v58.3l-76.6,0v15.9l-95.1,0l0.1-15.8l-82.3,0v-58.3l-315.2-0.4l0.5-480H-496.4z`,
-      category: new Set([category[`Товары для дома`]])
-    },
-    {
-      id: 7,
-      title: `Технопарк`,
-      logoSrc: `technopark.svg`,
-      synonyms: [`Технопарк`],
-      description: `Бытовая техника и электроника`,
-      path: `M243.9226074,311.9947815 l-155.2497711,0.1965637v-50.125l-68.294281,0.138031V41.687439l223.5440521,0.4740143`,
-      category: new Set([category[`Бытовая техника и электроника`]])
-    },
-    {
-      id: 8,
-      title: `Дочки-Сыночки`,
-      logoSrc: `dochkisinochki.svg`,
-      synonyms: [`Дочки-Сыночки`, `Дочки Сыночки`, `Дочки`, `Сыночки`],
-      description: `Товары для детей`,
-      path: `M841.69,41.02 841.69,312.54 841.69,355.45 841.32,355.45 841.32,400.29 1044.79,400.29 1044.79,41.02 z`,
-      category: new Set([category[`Детские товары`]])
-    },
-    {
-      id: 9,
-      title: `OSTIN`,
-      logoSrc: `ostin.svg`,
-      synonyms: [`OSTIN`, `остин`],
-      description: `Женская и мужская одежда`,
-      path: `M22.4,408.7h128.4v12.8H201v103.9h-54.7v33.1 H34.4H22.4V408.7z`,
-      category: new Set([category[`Одежда`]])
-    },
-    {
-      id: 10,
-      title: `KRUTOYS`,
-      synonyms: [`KRUTOYS`, `крутойс`, `крутой`, 'крутойз'],
-      description: `Товары для детей`,
-      path: `M827.4315796,398.3096008h-18.0935059 V366.630249h18.0935059V398.3096008z`,
-      category: new Set([category[`Детские товары`]])
-    },
-    {
-      id: 11,
-      title: `М.Видео`,
-      logoSrc: `mvideo.svg`,
-      synonyms: [`М.Видео`, `МВидео`, `М Видео`, `mvideo`],
-      description: `Магазин бытовой техники и электроники`,
-      path: `M9.587574-48.5962143 L8.3517342,178.1529236h-158.1085205v17.5948486h-129.0063934V43.5695572v-92.1657715H9.587574z`,
-      category: new Set([category[`Бытовая техника и электроника`]])
-    }
-  ],
-  markers: [{
-      symbolId: `elevator`,
-      points: [{
-          title: `Лифт`,
-          position: [746.5, 75.5]
-        },
-        {
-          title: `Лифт`,
-          position: [446.5, 75.5]
-        }
-      ]
-    },
-    {
-      symbolId: `foodcourt`,
-      points: [{
-        title: `Фудкорт`,
-        position: [953.5, 500]
-      }]
-    }
-  ]
-};
 aeroPlans.push(floor2);
 
-class ToggleFloors {
-  constructor(tabsControlsList, tabsContent, initialIndex = 1) {
-    this.tabsControlsList = tabsControlsList;
-    this.tabsControlsItems = tabsControlsList.querySelectorAll(`.aero-plans-toggle-floors__item`);
-    this.tabsContent = tabsContent;
-    this.tabIndex = initialIndex;
 
-    this.tabsControlsList.addEventListener(`click`, evt => {
-      this.onClick(evt);
-    });
-
-    this.changeTabContent(this.tabIndex);
-  }
-
-  onClick(evt) {
-    // console.log(this);
-    const target = evt.target;
-    const control = target.closest(`button`);
-
-    if (!control) {
-      return;
-    }
-
-    this.tabIndex = parseInt(target.dataset.floorId);
-    this.changeTabContent(this.tabIndex);
-  }
-
-  changeTabContent(index) {
-    this.tabIndex = index;
-
-    [...this.tabsContent].forEach((it, i) => {
-      if (i !== index - 1) {
-        it.classList.remove(`visible`);
-        it.classList.add(`hidden`);
-      } else {
-        it.classList.remove(`hidden`);
-        it.classList.add(`visible`);
-      }
-    });
-  }
-}
 
 filterForm.insertBefore(renderFilterSelect(category, {
   classStr: `select`,
@@ -305,7 +99,7 @@ toggleFloorsItem
   });
 
 toggleFloorsItem
-  .append(`span`)
+  .append(`span`);
 
 const reference = document.documentElement;
 const popper = document.querySelector(`.my-popper`);
@@ -390,8 +184,6 @@ function renderPlan(plan, planIndex) {
 
   mainsGArr.push(mainG);
 
-  // console.log(markers);
-
   if (markers) {
     markersG
       .selectAll(`g`)
@@ -402,17 +194,20 @@ function renderPlan(plan, planIndex) {
         const symbolId = d.symbolId;
         const points = d.points;
 
-        d3.select(this)
+        const use = d3
+          .select(this)
           .selectAll(`use`)
           .data(points)
           .enter()
-          .append(`use`)
+          .append(`use`);
+
+        use
           .attr(`data-title`, (d) => d.title)
           .attr(`xlink:href`, `#${symbolId}`)
-          .attr(`width`, 32)
-          .attr(`height`, 32)
-          .attr(`transform`, (d) => `translate(${d.position[0]} ${d.position[1]})`)
-      })
+          .attr(`width`, MARKER_SIZE)
+          .attr(`height`, MARKER_SIZE)
+          .attr(`transform`, (d) => `translate(${d.position[0]} ${d.position[1]})`);
+      });
   }
 
 
@@ -473,25 +268,27 @@ function renderPlan(plan, planIndex) {
 
   function zoomed() {
     popperInstance.update();
-
     mainG.attr("transform", d3.event.transform);
   }
 
   svg.call(zoom);
-
-  zoomActionsContainer.addEventListener(`click`, function (evt) {
-    const target = evt.target;
-    const action = target.dataset.scaleAction;
-
-    if (action) {
-      zoomActions[action](svg, zoom);
-    }
-  });
 }
 
 const aeroPlansToggleFloors = document.querySelector(`.aero-plans-toggle-floors`);
 const aeroPlansFloors = document.querySelectorAll(`.aero-plans__floor`);
 const toggleFloors = new ToggleFloors(aeroPlansToggleFloors, aeroPlansFloors);
+
+
+zoomActionsContainer.addEventListener(`click`, function (evt) {
+  const target = evt.target;
+  const action = target.dataset.scaleAction;
+  const svg = svgArr[toggleFloors.index];
+  const zoom = zoomsArr[toggleFloors.index];
+
+  if (action) {
+    zoomActions[action](svg, zoom);
+  }
+});
 
 searchForm.addEventListener(`submit`, searchFormSubmitHandler);
 filterForm.addEventListener("input", inputFormHandler);
@@ -628,10 +425,6 @@ function createOptionsList(list, inactiveOptionText) {
   return optionsFragment;
 }
 
-function createZoomControls() {
-
-}
-
 function catchTargetPlace({
   floorIndex,
   areaObj
@@ -645,7 +438,8 @@ function catchTargetPlace({
 
   removeSelectedAreas();
 
-  toggleFloors.changeTabContent(floorIndex + 1);
+  toggleFloors.toggleControls(floorIndex);
+  toggleFloors.toggleTabContent(floorIndex);
   place.classList.add(PLAN_PLACE_SELECTED_CLASS);
   let placeBBox = place.getBBox();
   let cx = placeBBox.x + placeBBox.width / 2;

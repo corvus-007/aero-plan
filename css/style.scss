@@ -8,6 +8,12 @@ svg {
   outline: 1px solid #BCAAA4;
 }
 
+.aero-plans-toggle-floors__item {
+  &--active {
+    background-color: #b5b0f7;
+  }
+}
+
 .plan-place {
   fill: #b5b0f7;
   transition: 0.25s;
@@ -54,13 +60,10 @@ svg {
   grid-row-end: 2;
   background-color: #fff;
   transition: 0.3s;
+  opacity: 0;
+  visibility: hidden;
 
-  &.hidden {
-    opacity: 0;
-    visibility: hidden;
-  }
-
-  &.visible {
+  &--active {
     opacity: 1;
     visibility: visible;
   }
