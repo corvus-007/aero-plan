@@ -59,15 +59,12 @@ export default {
       category: new Set([category[`Сотовая связь`], category[`Бытовая техника и электроника`]])
     }
   ],
-  markers: [{
-      symbolId: `elevator`,
+  markers: [
+    {
+      symbolId: `foodcourt`,
       points: [{
-          title: `Лифт`,
-          position: [746.5, 75.5]
-        },
-        {
-          title: `Лифт`,
-          position: [446.5, 75.5]
+          title: `Фудкорт`,
+          position: [145.5, 300]
         }
       ]
     },
@@ -75,13 +72,97 @@ export default {
       symbolId: `parking`,
       points: [{
           title: `Парковка`,
-          position: [841.5, 498.5]
-        },
-        {
-          title: `Парковка`,
-          position: [541.5, 498.5]
+          position: [187.5, 300]
         }
       ]
-    }
+    },
+    {
+      symbolId: `elevator`,
+      points: [{
+          title: `Лифт`,
+          position: [229.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `escalator`,
+      points: [{
+          title: `Эскалатор`,
+          position: [271.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `wardrobe`,
+      points: [{
+          title: `Гардероб`,
+          position: [313.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `wc`,
+      points: [{
+          title: `Туалет`,
+          position: [355.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `entrance-vertical`,
+      points: [{
+          title: `Вход`,
+          position: [397.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `entrance-horizontal`,
+      points: [{
+          title: `Вход`,
+          position: [439.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `entrance-diagonal`,
+      points: [{
+          title: `Вход`,
+          position: [481.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `entrance-diagonal-back`,
+      points: [{
+          title: `Вход`,
+          position: [523.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `cafe`,
+      points: [{
+          title: `Кафе`,
+          position: [565.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `atm`,
+      points: [{
+          title: `Банкомат`,
+          position: [607.5, 300]
+        }
+      ]
+    },
+    {
+      symbolId: `fountain`,
+      points: [{
+          title: `Фонтан`,
+          position: [649.5, 300]
+        }
+      ]
+    },
   ]
 };
