@@ -1,6 +1,7 @@
 import {
-  category,
-  forWho
+  categoryFilter,
+  forWhoFilter,
+  discountFilter
 } from './filter-options.js';
 import ToggleFloors from './toggle-floors.js';
 import floor1 from './floor-1.js';
@@ -15,21 +16,18 @@ const PLAN_PLACE_HOVERED_CLASS = `plan-place--hovered`;
 const PLAN_PLACE_SELECTED_CLASS = `plan-place--selected`;
 const PLAN_PLACE_FILTERED_CLASS = `plan-place--filtered`;
 const PLAN_PLACE_LOGO_CLASS = `plan-place-logo`;
-const MAX_LOGO_WIDTH = 300;
-const MAX_LOGO_HEIGHT = 300;
+const MAX_LOGO_WIDTH = 250;
+const MAX_LOGO_HEIGHT = 250;
 const KOEF_LOGO_SIZE = 0.7;
 const MARKER_SIZE = 32;
+
 const url = new URL(window.location);
 const params = new URLSearchParams(url.search);
 const placeId = params.get(`place_id`);
-
-// const FILTERED_TARGET_FILL = "#6ff";
-
-// const attrs = {
-//   fill: `#b5b0f7`
-// };
-
 const filterForm = document.querySelector(`[data-plans-filter-form]`);
+const categoryFilterSelect = filterForm.querySelector(`[name="category"]`);
+const forWhoFilterSelect = filterForm.querySelector(`[name="for-who"]`);
+const discountFilterSelect = filterForm.querySelector(`[name="discount"]`);
 const searchForm = document.querySelector(`[data-plans-search-form]`);
 const plansWrapper = document.querySelector(`.aero-plans`);
 const zoomActionsContainer = document.querySelector(".zoom-actions");
@@ -53,53 +51,21 @@ const zoomActions = {
       .call(zoom.scaleBy, 1.25);
   }
 };
+
 const aeroPlans = [];
 const zoomsArr = []
 const svgArr = [];
-const mainsGArr = [];
+const mainGArr = [];
 const placesPathsArr = [];
 
-
 aeroPlans.push(floor1);
-
 aeroPlans.push(floor2);
 
+categoryFilterSelect.appendChild(createOptionsList(categoryFilter));
+forWhoFilterSelect.appendChild(createOptionsList(forWhoFilter));
+discountFilterSelect.appendChild(createOptionsList(discountFilter));
 
-
-filterForm.insertBefore(renderFilterSelect(category, {
-  classStr: `select`,
-  name: `category`,
-  inactiveOptionText: `Выберите категорию`
-}), filterForm.lastElementChild);
-
-filterForm.insertBefore(renderFilterSelect(forWho, {
-  classStr: `select`,
-  name: `for-who`,
-  inactiveOptionText: `Для кого`
-}), filterForm.lastElementChild);
-
-const toggleFloorsItem = d3
-  .select(`.aero-plans-toggle-floors`)
-  .selectAll(`.aero-plans-toggle-floors__item`)
-  .data(aeroPlans)
-  .enter()
-  .append(`div`)
-  .classed(`aero-plans-toggle-floors__item`, true);
-
-toggleFloorsItem
-  .append(`button`)
-  .attr(`type`, `button`)
-  .attr(`data-floor-id`, (d, i) => {
-    let floor = i + 1;
-    return `${floor}`;
-  })
-  .text((d, i) => {
-    let floor = i + 1;
-    return `${floor} этаж`;
-  });
-
-toggleFloorsItem
-  .append(`span`);
+createToggleFloorsControls();
 
 const reference = document.documentElement;
 const popper = document.querySelector(`.my-popper`);
@@ -177,12 +143,25 @@ function renderPlan(plan, planIndex) {
   // }).entries(areas);
   // console.log(nest);
 
-  const mainG = svg.append(`g`).attr(`id`, `main-group`);
-  const placesG = mainG.append(`g`).attr(`id`, `places-group`);
-  const logosG = mainG.append(`g`).attr(`id`, `logos-group`);
-  const markersG = mainG.append(`g`).attr(`id`, `markers-group`);
+  const mainG = svg.append(`g`);
+  const placesG = mainG.append(`g`);
+  const logosG = mainG.append(`g`);
+  const markersG = mainG.append(`g`);
 
-  mainsGArr.push(mainG);
+  mainG
+    .attr(`id`, `main-group`)
+    .classed(`main-group`, true);
+  placesG
+    .attr(`id`, `places-group`)
+    .classed(`places-group`, true);
+  logosG
+    .attr(`id`, `logos-group`)
+    .classed(`logos-group`, true);
+  markersG
+    .attr(`id`, `markers-group`)
+    .classed(`markers-group`, true);
+
+  mainGArr.push(mainG);
 
   if (markers) {
     markersG
@@ -204,12 +183,11 @@ function renderPlan(plan, planIndex) {
         use
           .attr(`data-title`, (d) => d.title)
           .attr(`xlink:href`, `#${symbolId}`)
-          .attr(`width`, MARKER_SIZE)
-          .attr(`height`, MARKER_SIZE)
+          .attr(`width`, (d) => d.size ? d.size : MARKER_SIZE)
+          .attr(`height`, (d) => d.size ? d.size : MARKER_SIZE)
           .attr(`transform`, (d) => `translate(${d.position[0]} ${d.position[1]})`);
       });
   }
-
 
   const placesPaths = placesG
     .selectAll(`path`)
@@ -224,15 +202,14 @@ function renderPlan(plan, planIndex) {
     .attr(`data-description`, d => d.description)
     .attr(`data-place-id`, d => d.id)
     .attr(`d`, d => d.path)
-    // .attr(`fill`, attrs.fill);
     .classed(PLAN_PLACE_CLASS, true);
 
-  placesPaths.on("click", function (d) {
-    alert(`
-        ${this.dataset.title}
-        ${this.dataset.description}
-      `);
-  });
+  // placesPaths.on("click", function (d) {
+  //   alert(`
+  //       ${this.dataset.title}
+  //       ${this.dataset.description}
+  //     `);
+  // });
 
   const logosImages = logosG.selectAll(`image`)
     .data(areas)
@@ -261,7 +238,7 @@ function renderPlan(plan, planIndex) {
     .zoom()
     .scaleExtent([MIN_ZOOM, MAX_ZOOM])
     // Раскомментить нижнюю строку после перерисовки плана, т.к. path'ы выходят за границу SVG и нужно
-    // .translateExtent([[-100, -100], [WIDTH + 100, HEIGHT + 100]])
+    // .translateExtent([[-500, -500], [WIDTH + 500, HEIGHT + 500]])
     .on("zoom", zoomed);
 
   zoomsArr.push(zoom);
@@ -278,20 +255,9 @@ const aeroPlansToggleFloors = document.querySelector(`.aero-plans-toggle-floors`
 const aeroPlansFloors = document.querySelectorAll(`.aero-plans__floor`);
 const toggleFloors = new ToggleFloors(aeroPlansToggleFloors, aeroPlansFloors);
 
-
-zoomActionsContainer.addEventListener(`click`, function (evt) {
-  const target = evt.target;
-  const action = target.dataset.scaleAction;
-  const svg = svgArr[toggleFloors.index];
-  const zoom = zoomsArr[toggleFloors.index];
-
-  if (action) {
-    zoomActions[action](svg, zoom);
-  }
-});
-
-searchForm.addEventListener(`submit`, searchFormSubmitHandler);
-filterForm.addEventListener("input", inputFormHandler);
+zoomActionsContainer.addEventListener(`click`, clickZoomContainerHandler);
+searchForm.addEventListener(`submit`, submitSearchFormHandler);
+filterForm.addEventListener(`input`, inputFilterFormHandler);
 filterForm.addEventListener(`reset`, resetFormHandler);
 
 // Переход со страницы магазина по указанному id
@@ -301,9 +267,20 @@ function getPathToImage(d, index) {
   return d.logoSrc ? `logos/floor_${index+1}/${d.logoSrc}` : ``;
 }
 
-function inputFormHandler(evt) {
+function clickZoomContainerHandler(evt) {
   const target = evt.target;
-  const select = target.closest(`select`);
+  const action = target.dataset.scaleAction;
+  const svg = svgArr[toggleFloors.index];
+  const zoom = zoomsArr[toggleFloors.index];
+
+  if (action) {
+    zoomActions[action](svg, zoom);
+  }
+}
+
+function inputFilterFormHandler(evt) {
+  const target = evt.target;
+  const select = target.closest(`.filter-select`);
 
   if (!select) {
     return;
@@ -312,29 +289,36 @@ function inputFormHandler(evt) {
   resetFilter(select);
 
   const filterName = select.name;
-  const filterValue = parseInt(select.value, 10);
+  let filterValue = parseInt(select.value, 10);
+  filterValue = isNaN(filterValue) ? select.value : filterValue;
 
   placesPathsArr.forEach((paths, planIndex) => {
     const filteredPaths = paths
       .classed(PLAN_PLACE_FILTERED_CLASS, false)
       .filter(d => {
         if (d[filterName] instanceof Set) {
+          if (filterValue === `all`) {
+            return d[filterName].size;
+          }
           return d[filterName].has(filterValue);
         }
       })
       .classed(PLAN_PLACE_FILTERED_CLASS, true);
 
-    const filteredPathsCount = filteredPaths.size();
+    const filteredAreasCount = filteredPaths.size();
+    const item = document.querySelectorAll(`.aero-plans-toggle-floors__item`)[planIndex];
+    const badge = item.querySelector(`.aero-plans-toggle-floors__badge`);
 
-    d3.select(`.aero-plans-toggle-floors__item:nth-child(${planIndex+1})`).select(`span`).text(filteredPathsCount);
+    badge.textContent = filteredAreasCount || ``;
   });
 }
 
 function resetFormHandler(evt) {
-  removeFilteredAreas();
+  removePlacesCountBadge();
+  removeClassFilteredAreas();
 }
 
-function searchFormSubmitHandler(evt) {
+function submitSearchFormHandler(evt) {
   evt.preventDefault();
   const inputNode = searchForm.querySelector(`[name="nameOfPlace"]`);
   const value = inputNode.value;
@@ -351,6 +335,24 @@ function resetFilter(currentSelectNode) {
       it.selectedIndex = 0;
     }
   });
+}
+
+function createToggleFloorsControls() {
+  d3
+    .select(`.aero-plans-toggle-floors`)
+    .selectAll(`.aero-plans-toggle-floors__item`)
+    .data(aeroPlans)
+    .enter()
+    .append(`li`)
+    .classed(`aero-plans-toggle-floors__item`, true)
+    .html((d, i) => {
+      let floor = i + 1;
+
+      return `
+      <button class="aero-plans-toggle-floors__button" type="button" data-floor-id="${floor}">${floor} этаж</button>
+      <span class="aero-plans-toggle-floors__badge"></span>
+    `;
+    });
 }
 
 function calcLogoPosition(d, property) {
@@ -394,31 +396,11 @@ function calcLogoPosition(d, property) {
   }
 }
 
-function renderFilterSelect(listName, {
-  classStr = ``,
-  name = ``,
-  inactiveOptionText = ``
-}) {
-  const select = document.createElement(`select`);
-
-  select.setAttribute(`name`, name);
-  select.setAttribute(`class`, classStr);
-  select.appendChild(createOptionsList(listName, inactiveOptionText));
-
-  return select;
-}
-
-function createOptionsList(list, inactiveOptionText) {
+function createOptionsList(optionslist) {
   const optionsFragment = document.createDocumentFragment();
 
-  if (inactiveOptionText) {
-    let inactiveOptionEl = new Option(inactiveOptionText, null, false, true);
-    inactiveOptionEl.disabled = true;
-    optionsFragment.appendChild(inactiveOptionEl);
-  }
-
-  for (let item in list) {
-    let optionEl = new Option(item, list[item])
+  for (let item in optionslist) {
+    let optionEl = new Option(item, optionslist[item])
     optionsFragment.appendChild(optionEl);
   }
 
@@ -436,7 +418,7 @@ function catchTargetPlace({
   let targetId = getTargetIdFromAreaObj(areaObj);
   let place = document.querySelector(`[data-place-id="${targetId}"]`);
 
-  removeSelectedAreas();
+  removeClassSelectedAreas();
 
   toggleFloors.toggleControls(floorIndex);
   toggleFloors.toggleTabContent(floorIndex);
@@ -460,17 +442,24 @@ function catchTargetPlace({
     .call(zoomsArr[floorIndex].transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
 }
 
-function removeSelectedAreas() {
+function removeClassSelectedAreas() {
   const selectedPaths = document.querySelectorAll(`.${PLAN_PLACE_SELECTED_CLASS}`);
   [...selectedPaths].forEach((it) => {
     it.classList.remove(PLAN_PLACE_SELECTED_CLASS);
   });
 }
 
-function removeFilteredAreas() {
+function removeClassFilteredAreas() {
   const selectedPaths = document.querySelectorAll(`.${PLAN_PLACE_FILTERED_CLASS}`);
   [...selectedPaths].forEach((it) => {
     it.classList.remove(PLAN_PLACE_FILTERED_CLASS);
+  });
+}
+
+function removePlacesCountBadge() {
+  const badges = document.querySelectorAll(`.aero-plans-toggle-floors__badge`);
+  [...badges].forEach((it) => {
+    it.textContent = ``;
   });
 }
 
@@ -479,9 +468,9 @@ function getTargetIdFromAreaObj(placeObj) {
 }
 
 function getFloorIndexAndObjectOfPlaceId(id) {
-  id = parseInt(id, 10);
   let floorIndex = 0;
   let areaObj = null;
+  id = parseInt(id, 10);
 
   for (let i = 0; i < aeroPlans.length; i++) {
     let areas = aeroPlans[i].areas;
@@ -502,9 +491,9 @@ function getFloorIndexAndObjectOfPlaceId(id) {
 }
 
 function getFloorIndexAndObjectOfPlaceIdOnSearch(value) {
-  value = value.toLowerCase().trim();
   let floorIndex = 0;
   let areaObj = null;
+  value = value.toLowerCase().trim();
 
   for (let i = 0; i < aeroPlans.length; i++) {
     let areas = aeroPlans[i].areas;

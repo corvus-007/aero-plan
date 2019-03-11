@@ -14,9 +14,9 @@ export default class ToggleFloors {
 
   onClick(evt) {
     const target = evt.target;
-    const control = target.closest(`button`);
+    const button = target.closest(`button`);
 
-    if (!control) {
+    if (!button) {
       return;
     }
 
@@ -29,7 +29,6 @@ export default class ToggleFloors {
     this.index = index;
 
     [...this.toggleControlsItems].forEach((control, i) => {
-      // debugger;
       control.classList.toggle('aero-plans-toggle-floors__item--active', i == index);
     });
   }
@@ -39,14 +38,6 @@ export default class ToggleFloors {
 
     [...this.floorsItems].forEach((floor, i) => {
       floor.classList.toggle('aero-plans__floor--active', i == index);
-
-      // if (i !== index - 1) {
-      //   floor.classList.remove(`visible`);
-      //   floor.classList.add(`hidden`);
-      // } else {
-      //   floor.classList.remove(`hidden`);
-      //   floor.classList.add(`visible`);
-      // }
     });
   }
 }

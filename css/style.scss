@@ -8,14 +8,9 @@ svg {
   outline: 1px solid #BCAAA4;
 }
 
-.aero-plans-toggle-floors__item {
-  &--active {
-    background-color: #b5b0f7;
-  }
-}
-
 .plan-place {
   fill: #b5b0f7;
+  stroke: #fff;
   transition: 0.25s;
 
   &--hovered {
@@ -40,8 +35,45 @@ svg {
   }
 }
 
-.plan-place-logo {
+.logos-group {
   pointer-events: none;
+}
+
+.aero-plans-toggle-floors {
+  display: flex;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.aero-plans-toggle-floors__item {
+  flex-grow: 1;
+
+  &--active {
+
+  }
+}
+
+.aero-plans-toggle-floors__button {
+  display: block;
+  width: 100%;
+  padding: 16px;
+  font-weight: 500;
+  font-family: inherit;
+  background-color: #b5b0f7;
+  border: none;
+  border-radius: 0;
+  transition: 0.25s;
+  box-sizing: border-box;
+  outline: none;
+
+  .aero-plans-toggle-floors__item--active & {
+    background-color: darken(#b5b0f7, 8%);
+  }
+}
+
+.aero-plans-toggle-floors__badge {
+
 }
 
 .aero-plans {
