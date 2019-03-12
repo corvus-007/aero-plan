@@ -64,7 +64,7 @@ export default {
       category: new Set([categoryFilter[`Бытовая техника и электроника`]])
     }
   ],
-  markers: [{
+  helpMarkers: [{
       symbolId: `elevator`,
       points: [{
           title: `Лифт`,

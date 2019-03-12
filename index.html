@@ -116,9 +116,13 @@
   <!-- <ol class="aero-plans-toggle-floors">
     <li class="aero-plans-toggle-floors__item">
       <button class="aero-plans-toggle-floors__button"></button>
-      <span class="aero-plans-toggle-floors__badge"></span>
+      <span class="aero-plans-toggle-floors__badge">
+        <span class="aero-plans-toggle-floors__badge-caption visually-hidden">общее количество наденных магазинов</span>
+        <span class="aero-plans-toggle-floors__badge-value"></span>
+      </span>
     </li>
   </ol> -->
+
   <ol class="aero-plans-toggle-floors"></ol>
   <div class="zoom-actions">
     <button type="button" data-scale-action="down">scale down</button>
@@ -129,7 +133,8 @@
     <input type="search" name="nameOfPlace" placeholder="Поиск по арендаторам">
   </form>
   <div class="aero-plans"></div>
-  <div class="my-popper"></div>
+  <div class="aero-plan-popper"></div>
+
   <script src="https://unpkg.com/popper.js@1.14.7/dist/umd/popper.min.js"></script>
   <script src="scripts/d3.js"></script>
   <script src="scripts/script.js" type="module"></script>

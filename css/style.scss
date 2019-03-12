@@ -3,9 +3,22 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
+.visually-hidden {
+  display: none;
+}
+
 svg {
-  display: block;
-  outline: 1px solid #BCAAA4;
+  // display: block;
+  background-color: #fafafa;
+}
+
+.aero-plans-filter-form {
+  margin-bottom: 24px;
+}
+
+.filter-select {
+  font-size: 18px;
+  font-family: inherit;
 }
 
 .plan-place {
@@ -14,7 +27,7 @@ svg {
   transition: 0.25s;
 
   &--hovered {
-    fill: #8e89d8;
+    // fill: #8e89d8;
     fill: darken(#b5b0f7, 8%);
   }
 
@@ -44,23 +57,22 @@ svg {
   margin: 0;
   padding: 0;
   list-style: none;
+  margin-bottom: 24px;
 }
 
 .aero-plans-toggle-floors__item {
-  flex-grow: 1;
+  position: relative;
 
-  &--active {
-
-  }
+  &--active {}
 }
 
 .aero-plans-toggle-floors__button {
   display: block;
-  width: 100%;
-  padding: 16px;
+  padding: 16px 24px;
   font-weight: 500;
+  font-size: 18px;
   font-family: inherit;
-  background-color: #b5b0f7;
+  background-color: #e7e7e7;
   border: none;
   border-radius: 0;
   transition: 0.25s;
@@ -68,12 +80,37 @@ svg {
   outline: none;
 
   .aero-plans-toggle-floors__item--active & {
-    background-color: darken(#b5b0f7, 8%);
+    background-color: #b5b0f7;
   }
 }
 
 .aero-plans-toggle-floors__badge {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 
+.aero-plans-toggle-floors__badge-caption {}
+
+.aero-plans-toggle-floors__badge-value {
+  display: block;
+  width: 16px;
+  height: 16px;
+  text-align: center;
+  line-height: 16px;
+  padding: 4px;
+  font-size: 14px;
+  line-height: 1;
+  background-color: #fff;
+  border-radius: 50%;
+
+  &:empty {
+    display: none;
+  }
+}
+
+.zoom-actions {
+  margin-bottom: 24px;
 }
 
 .aero-plans {
@@ -82,6 +119,11 @@ svg {
   grid-template-rows: 1fr;
   align-items: center;
   justify-content: center;
+  max-width: 1105px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .aero-plans__floor {
@@ -94,47 +136,28 @@ svg {
   transition: 0.3s;
   opacity: 0;
   visibility: hidden;
+  overflow: hidden;
 
   &--active {
     opacity: 1;
     visibility: visible;
   }
-
-  &::before,
-  &::after {
-    content: "";
-    position: absolute;
-    width: 64px;
-    height: 1px;
-    background-color: rgba(#000, 0.25);
-    top: 50%;
-    left: 50%;
-    pointer-events: none;
-  }
-
-  &::before {
-    transform: translate(-50%, -50%);
-  }
-
-  &::after {
-    transform: translate(-50%, -50%) rotate(-90deg);
-  }
 }
 
-button,
-select {
-  font-family: inherit;
-}
-
-.my-popper {
+.aero-plan-popper {
+  max-width: 300px;
   padding: 15px;
+  hyphens: auto;
   background-color: #fff;
   border-radius: 2px;
-  max-width: 300px;
   box-shadow: 0 2px 16px rgba(#000, 0.1);
   box-sizing: border-box;
 
   &:empty {
+    display: none;
+  }
+
+  :empty {
     display: none;
   }
 
@@ -148,12 +171,37 @@ select {
     z-index: -1;
   }
 
-  h2 {
-    margin: 0;
-    font-size: 20px;
+  &::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 8px;
+    height: 8px;
+    transform: translateX(-50%) rotate(45deg);
+    background-color: #fff;
+    border-radius: 2px;
   }
 
   p {
     margin: 0;
   }
+
+  &[x-placement="top"] {
+    &::after {
+      top: calc(100% - 5px);
+    }
+  }
+
+  &[x-placement="bottom"] {
+    &::after {
+      bottom: calc(100% - 5px);
+    }
+  }
+}
+
+.aero-plan-popper__title {
+  margin: 0;
+  margin-bottom: 8px;
+  font-weight: 500;
+  font-size: 20px;
 }

@@ -58,17 +58,8 @@ const svgArr = [];
 const mainGArr = [];
 const placesPathsArr = [];
 
-aeroPlans.push(floor1);
-aeroPlans.push(floor2);
-
-categoryFilterSelect.appendChild(createOptionsList(categoryFilter));
-forWhoFilterSelect.appendChild(createOptionsList(forWhoFilter));
-discountFilterSelect.appendChild(createOptionsList(discountFilter));
-
-createToggleFloorsControls();
-
 const reference = document.documentElement;
-const popper = document.querySelector(`.my-popper`);
+const popper = document.querySelector(`.aero-plan-popper`);
 const popperInstance = new Popper(reference, popper, {
   modifiers: {
     preventOverflow: {
@@ -78,55 +69,34 @@ const popperInstance = new Popper(reference, popper, {
 });
 let currentPathNode = null;
 
-plansWrapper.addEventListener(`mouseover`, function (evt) {
-  const target = evt.target;
-  const pathNode = target.closest(`.plan-place`) || target.closest(`use`);
-
-  if (!pathNode) {
-    return;
-  }
-
-  currentPathNode = pathNode;
-  pathNode.classList.add(PLAN_PLACE_HOVERED_CLASS);
-
-  const title = pathNode.dataset.title;
-  const description = pathNode.dataset.description || ``;
-
-  popper.innerHTML = `
-    <h2>${title}</h2>
-    <p>${description}</p>
-  `;
-  popperInstance.update();
-  popperInstance.reference = pathNode;
-  popper.hidden = false;
-});
-
-plansWrapper.addEventListener(`mouseout`, function (evt) {
-  if (evt.relatedTarget !== popper && currentPathNode) {
-    popper.hidden = true;
-    currentPathNode.classList.remove(PLAN_PLACE_HOVERED_CLASS);
-  }
-});
-
-popper.addEventListener(`mouseleave`, function (evt) {
-  const relatedTarget = evt.relatedTarget;
-  const pathNode = relatedTarget.closest(`path`);
-
-  if (!currentPathNode) {
-    return;
-  }
-
-  if (pathNode !== currentPathNode || !pathNode) {
-    popper.hidden = true;
-    currentPathNode.classList.remove(PLAN_PLACE_HOVERED_CLASS);
-  }
-});
+aeroPlans.push(floor1);
+aeroPlans.push(floor2);
 
 aeroPlans.forEach(renderPlan);
 
+categoryFilterSelect.appendChild(createOptionsList(categoryFilter));
+forWhoFilterSelect.appendChild(createOptionsList(forWhoFilter));
+discountFilterSelect.appendChild(createOptionsList(discountFilter));
+
+createToggleFloorsControls();
+
+const aeroPlansToggleFloors = document.querySelector(`.aero-plans-toggle-floors`);
+const aeroPlansFloors = document.querySelectorAll(`.aero-plans__floor`);
+const toggleFloors = new ToggleFloors(aeroPlansToggleFloors, aeroPlansFloors);
+
+plansWrapper.addEventListener(`mouseover`, mouseroverPlansWrapperHandler);
+plansWrapper.addEventListener(`mouseout`, mouseoutPlansWrapperHandler);
+popper.addEventListener(`mouseleave`, mouseleavePopperHandler);
+
+zoomActionsContainer.addEventListener(`click`, clickZoomContainerHandler);
+
+searchForm.addEventListener(`submit`, submitSearchFormHandler);
+filterForm.addEventListener(`input`, inputFilterFormHandler);
+filterForm.addEventListener(`reset`, resetFormHandler);
+
 function renderPlan(plan, planIndex) {
   const areas = plan.areas;
-  const markers = plan.markers;
+  const helpMarkers = plan.helpMarkers;
 
   const svg = d3
     .select(`.aero-plans`)
@@ -146,7 +116,7 @@ function renderPlan(plan, planIndex) {
   const mainG = svg.append(`g`);
   const placesG = mainG.append(`g`);
   const logosG = mainG.append(`g`);
-  const markersG = mainG.append(`g`);
+  const helpMarkersG = mainG.append(`g`);
 
   mainG
     .attr(`id`, `main-group`)
@@ -157,16 +127,16 @@ function renderPlan(plan, planIndex) {
   logosG
     .attr(`id`, `logos-group`)
     .classed(`logos-group`, true);
-  markersG
-    .attr(`id`, `markers-group`)
-    .classed(`markers-group`, true);
+  helpMarkersG
+    .attr(`id`, `help-markers-group`)
+    .classed(`help-markers-group`, true);
 
   mainGArr.push(mainG);
 
-  if (markers) {
-    markersG
+  if (helpMarkers) {
+    helpMarkersG
       .selectAll(`g`)
-      .data(markers)
+      .data(helpMarkers)
       .enter()
       .append(`g`)
       .each(function (d) {
@@ -185,7 +155,8 @@ function renderPlan(plan, planIndex) {
           .attr(`xlink:href`, `#${symbolId}`)
           .attr(`width`, (d) => d.size ? d.size : MARKER_SIZE)
           .attr(`height`, (d) => d.size ? d.size : MARKER_SIZE)
-          .attr(`transform`, (d) => `translate(${d.position[0]} ${d.position[1]})`);
+          .attr(`transform`, (d) => `translate(${d.position[0]} ${d.position[1]})`)
+          .classed(`plan-help-marker`, true);
       });
   }
 
@@ -198,9 +169,12 @@ function renderPlan(plan, planIndex) {
   placesPathsArr.push(placesPaths);
 
   placesPaths
+    .attr(`data-place-id`, d => d.id)
     .attr(`data-title`, d => d.title)
     .attr(`data-description`, d => d.description)
-    .attr(`data-place-id`, d => d.id)
+    .attr(`data-link-url`, d => d.link ? d.link.url : null)
+    .attr(`data-link-text`, d => d.link ? d.link.text : null)
+    .attr(`data-button-text`, d => d.button ? d.button.text : null)
     .attr(`d`, d => d.path)
     .classed(PLAN_PLACE_CLASS, true);
 
@@ -218,7 +192,7 @@ function renderPlan(plan, planIndex) {
 
   logosImages
     .attr(`xlink:href`, (d) => {
-      return getPathToImage(d, planIndex);
+      return getPathToLogoImage(d, planIndex);
     })
     .attr(`width`, (d) => {
       return calcLogoPosition(d, `width`);
@@ -251,20 +225,46 @@ function renderPlan(plan, planIndex) {
   svg.call(zoom);
 }
 
-const aeroPlansToggleFloors = document.querySelector(`.aero-plans-toggle-floors`);
-const aeroPlansFloors = document.querySelectorAll(`.aero-plans__floor`);
-const toggleFloors = new ToggleFloors(aeroPlansToggleFloors, aeroPlansFloors);
-
-zoomActionsContainer.addEventListener(`click`, clickZoomContainerHandler);
-searchForm.addEventListener(`submit`, submitSearchFormHandler);
-filterForm.addEventListener(`input`, inputFilterFormHandler);
-filterForm.addEventListener(`reset`, resetFormHandler);
-
 // Переход со страницы магазина по указанному id
 catchTargetPlace(getFloorIndexAndObjectOfPlaceId(placeId));
 
-function getPathToImage(d, index) {
-  return d.logoSrc ? `logos/floor_${index+1}/${d.logoSrc}` : ``;
+function getPathToLogoImage(d, index) {
+  return d.logoSrc ? `logos/floor_${index+1}/${d.logoSrc}` : null;
+}
+
+function mouseroverPlansWrapperHandler(evt) {
+  const target = evt.target;
+  const pathNode = target.closest(`.plan-place`) || target.closest(`.plan-help-marker`);
+
+  if (!pathNode) {
+    return;
+  }
+
+  currentPathNode = pathNode;
+  pathNode.classList.add(PLAN_PLACE_HOVERED_CLASS);
+
+  renderPlanPopper(pathNode);
+}
+
+function mouseoutPlansWrapperHandler(evt) {
+  if (evt.relatedTarget !== popper && currentPathNode) {
+    popper.hidden = true;
+    currentPathNode.classList.remove(PLAN_PLACE_HOVERED_CLASS);
+  }
+}
+
+function mouseleavePopperHandler(evt) {
+  const relatedTarget = evt.relatedTarget;
+  const pathNode = relatedTarget.closest(`.plan-place`) || relatedTarget.closest(`.plan-help-marker`);
+
+  if (!currentPathNode) {
+    return;
+  }
+
+  if (pathNode !== currentPathNode || !pathNode) {
+    popper.hidden = true;
+    currentPathNode.classList.remove(PLAN_PLACE_HOVERED_CLASS);
+  }
 }
 
 function clickZoomContainerHandler(evt) {
@@ -306,10 +306,9 @@ function inputFilterFormHandler(evt) {
       .classed(PLAN_PLACE_FILTERED_CLASS, true);
 
     const filteredAreasCount = filteredPaths.size();
-    const item = document.querySelectorAll(`.aero-plans-toggle-floors__item`)[planIndex];
-    const badge = item.querySelector(`.aero-plans-toggle-floors__badge`);
+    const badgeValueNode = document.querySelectorAll(`.aero-plans-toggle-floors__badge-value`)[planIndex];
 
-    badge.textContent = filteredAreasCount || ``;
+    badgeValueNode.textContent = filteredAreasCount || ``;
   });
 }
 
@@ -350,14 +349,17 @@ function createToggleFloorsControls() {
 
       return `
       <button class="aero-plans-toggle-floors__button" type="button" data-floor-id="${floor}">${floor} этаж</button>
-      <span class="aero-plans-toggle-floors__badge"></span>
-    `;
+        <span class="aero-plans-toggle-floors__badge">
+          <span class="aero-plans-toggle-floors__badge-caption visually-hidden">Общее количество найденных мест</span>
+          <span class="aero-plans-toggle-floors__badge-value"></span>
+        </span>
+      `;
     });
 }
 
 function calcLogoPosition(d, property) {
   if (!d.logoSrc) {
-    return 0;
+    return null;
   }
 
   const path = document.querySelector(`[data-place-id="${d.id}"]`);
@@ -423,9 +425,9 @@ function catchTargetPlace({
   toggleFloors.toggleControls(floorIndex);
   toggleFloors.toggleTabContent(floorIndex);
   place.classList.add(PLAN_PLACE_SELECTED_CLASS);
-  let placeBBox = place.getBBox();
-  let cx = placeBBox.x + placeBBox.width / 2;
-  let cy = placeBBox.y + placeBBox.height / 2;
+  const placeBBox = place.getBBox();
+  const cx = placeBBox.x + placeBBox.width / 2;
+  const cy = placeBBox.y + placeBBox.height / 2;
   let scale = 0.95 * Math.min(WIDTH / placeBBox.width, HEIGHT / placeBBox.height);
 
   if (scale < MIN_ZOOM) {
@@ -440,6 +442,28 @@ function catchTargetPlace({
     .transition()
     .duration(800)
     .call(zoomsArr[floorIndex].transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
+
+  renderPlanPopper(place);
+}
+
+function renderPlanPopper(pathNode) {
+  const title = pathNode.dataset.title || ``;
+  const description = pathNode.dataset.description || ``;
+  const linkUrl = pathNode.dataset.linkUrl || ``;
+  const linkText = pathNode.dataset.linkText || ``;
+  const link = `<a href="${linkUrl}" target="_blank">${linkText}</a>`;
+  const buttonText = pathNode.dataset.buttonText || ``;
+  const button = `<button type="button">${buttonText}</button>`;
+
+  popper.innerHTML = `
+    <h2 class="aero-plan-popper__title">${title}</h2>
+    <p>${description}</p>
+    <p>${link}</p>
+    <p>${button}</p>
+  `;
+  popperInstance.update();
+  popperInstance.reference = pathNode;
+  popper.hidden = false;
 }
 
 function removeClassSelectedAreas() {
@@ -457,8 +481,8 @@ function removeClassFilteredAreas() {
 }
 
 function removePlacesCountBadge() {
-  const badges = document.querySelectorAll(`.aero-plans-toggle-floors__badge`);
-  [...badges].forEach((it) => {
+  const badgesValueNodes = document.querySelectorAll(`.aero-plans-toggle-floors__badge-value`);
+  [...badgesValueNodes].forEach((it) => {
     it.textContent = ``;
   });
 }
@@ -470,7 +494,7 @@ function getTargetIdFromAreaObj(placeObj) {
 function getFloorIndexAndObjectOfPlaceId(id) {
   let floorIndex = 0;
   let areaObj = null;
-  id = parseInt(id, 10);
+  // id = parseInt(id, 10);
 
   for (let i = 0; i < aeroPlans.length; i++) {
     let areas = aeroPlans[i].areas;

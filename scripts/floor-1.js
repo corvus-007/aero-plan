@@ -53,7 +53,7 @@ export default {
       category: new Set([categoryFilter[`Продукты питания`]])
     },
     {
-      id: `${FLOOR}_50`,
+      id: `${FLOOR}_6`,
       title: `TELE2`,
       logoSrc: `tele2.svg`,
       synonyms: [`tele2`, `теле2`],
@@ -63,17 +63,50 @@ export default {
       discount: new Set([discountFilter[`До 30%`]])
     },
     {
-      id: `${FLOOR}_51`,
+      id: `${FLOOR}_7`,
       title: `Снежная королева`,
       logoSrc: `snowqueen.svg`,
       synonyms: [`снежная королева`, `снежная`],
-      description: `Верхняя одежда `,
+      description: `Верхняя одежда`,
+      link: {
+        url: `http://www.trc-aeropark.ru/shop/snezhnaya-koroleva`,
+        text: `1 действующая акция`
+      },
       path: `M125.1,281.8 l-67.5,0v-52l-57.5,0V25.4h125V281.8z`,
       category: new Set([categoryFilter[`Одежда`]]),
       discount: new Set([discountFilter[`До 30%`]])
+    },
+    {
+      id: `${FLOOR}_8`,
+      title: `Pull&amp;Bear`,
+      logoSrc: `pullandbear.svg`,
+      synonyms: [`pull&bear`, `pull & bear`, `пулл и биар`, `пулл и бир`],
+      description: `Одежда для энергичных, творческих и амбициозных молодых людей`,
+      path: `M140.7,312.5 140.7,359.5   140.7,383.9 140.7,383.9 140.7,420 141.4,420 141.4,420.5 177.1,420.5 177.1,420.5 211.1,420.5 211.2,420.5 245.1,420.5 245.1,420   245.1,408.3 245.1,312.5 z`,
+      category: new Set([categoryFilter[`Одежда`]]),
+      discount: new Set([discountFilter[`До 30%`]])
+    },
+    {
+      id: `${FLOOR}_9`,
+      title: `Помещение для магазина`,
+      logoSrc: ``,
+      synonyms: [],
+      description: `Свободно`,
+      rent: true,
+      link: {
+        text: ``,
+        url: ``
+      },
+      button: {
+        text: `Отправить заявку`,
+        action: ``
+      },
+      path: `M-181.5,454.1h-21.8l-14.3-23.1v-24.6 h36.1V454.1z`,
+      category: new Set(),
+      discount: new Set()
     }
   ],
-  markers: [{
+  helpMarkers: [{
       symbolId: `foodcourt`,
       points: [{
         title: `Фудкорт`,
