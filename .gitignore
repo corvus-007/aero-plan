@@ -1,2 +1,6 @@
 css/style.css
 css/style.css.map
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+other/
