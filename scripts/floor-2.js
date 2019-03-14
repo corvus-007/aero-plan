@@ -4,11 +4,16 @@ import {
   discountFilter
 } from './filter-options.js';
 
-const FLOOR = 2;
-
 export default {
+  settings: {
+    dimensions: {
+      width: 1429,
+      height: 467
+    },
+    boundaryShape: `M508.5 467.2c-7.7 0-15.1-1-22.2-3-20.3-5.5-37-19-47-38a77.7 77.7 0 0 1-7-53.1 65.6 65.6 0 0 1 33.2-43.1v-27H356.7l.2 36h-45.3v10.1h-74.2v-10.2H188v-36H0V0h811.7v56.2l617.3-.1v389.2h-.9l-243.7-.1a156.7 156.7 0 0 1-74.4 20h-.2a156 156 0 0 1-74.2-20l-447.2-.2c-1.4.3-16.5 4-20.9 6.2a131.4 131.4 0 0 1-59 16z`
+  },
   areas: [{
-      id: `${FLOOR}_6`,
+      id: 6,
       title: `OBI`,
       logoSrc: `obi.svg`,
       synonyms: [`OBI`, `оби`],
@@ -17,7 +22,7 @@ export default {
       category: new Set([categoryFilter[`Товары для дома`]])
     },
     {
-      id: `${FLOOR}_7`,
+      id: 7,
       title: `Технопарк`,
       logoSrc: `technopark.svg`,
       synonyms: [`Технопарк`],
@@ -26,7 +31,7 @@ export default {
       category: new Set([categoryFilter[`Бытовая техника и электроника`]])
     },
     {
-      id: `${FLOOR}_8`,
+      id: 8,
       title: `Дочки-Сыночки`,
       logoSrc: `dochkisinochki.svg`,
       synonyms: [`Дочки-Сыночки`, `Дочки Сыночки`, `Дочки`, `Сыночки`],
@@ -36,7 +41,7 @@ export default {
       'for-who': new Set([forWhoFilter[`Товары для детей`]])
     },
     {
-      id: `${FLOOR}_9`,
+      id: 9,
       title: `OSTIN`,
       logoSrc: `ostin.svg`,
       synonyms: [`OSTIN`, `остин`],
@@ -45,7 +50,7 @@ export default {
       category: new Set([categoryFilter[`Одежда`]])
     },
     {
-      id: `${FLOOR}_10`,
+      id: 10,
       title: `KRUTOYS`,
       synonyms: [`KRUTOYS`, `крутойс`, `крутой`, 'крутойз'],
       description: `Товары для детей`,
@@ -55,7 +60,7 @@ export default {
       discount: new Set([discountFilter[`До 30%`]])
     },
     {
-      id: `${FLOOR}_11`,
+      id: 11,
       title: `М.Видео`,
       logoSrc: `mvideo.svg`,
       synonyms: [`М.Видео`, `МВидео`, `М Видео`, `mvideo`],

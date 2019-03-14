@@ -4,11 +4,16 @@ import {
   discountFilter
 } from './filter-options.js';
 
-const FLOOR = 1;
-
 export default {
+  settings: {
+    dimensions: {
+      width: 944,
+      height: 337
+    },
+    boundaryShape: `M2.3 312.2h37.4l.3.4c10.7 14 27.1 22.1 45 22.2h.2c18.1 0 34.8-8.1 45.6-22.2l.3-.4h.4l810.9.4V2.3L9 2.5v249.2H2.4l-.1 60.5z`
+  },
   areas: [{
-      id: `${FLOOR}_1`,
+      id: 1,
       title: `KARI`,
       synonyms: [`кари`, `kari`],
       description: `Обувной магазин`,
@@ -16,7 +21,7 @@ export default {
       category: new Set([categoryFilter[`Обувь`]])
     },
     {
-      id: `${FLOOR}_2`,
+      id: 2,
       title: `ZARA`,
       logoSrc: `zara.svg`,
       synonyms: [`zara`, `зара`],
@@ -26,7 +31,7 @@ export default {
       path: `M312.6,25.4l0.6,240.6 c-3,4.8-5.4,10.1-6.9,15.7H125.1V25.4H312.6z`,
     },
     {
-      id: `${FLOOR}_3`,
+      id: 3,
       title: `Bershka`,
       logoSrc: `bershka.svg`,
       synonyms: [`bershka`, `бершка`],
@@ -35,7 +40,7 @@ export default {
       category: new Set([categoryFilter[`Одежда`]])
     },
     {
-      id: `${FLOOR}_4`,
+      id: 4,
       title: `H&M`,
       logoSrc: `h&m.svg`,
       synonyms: [`h&m`, `hm`, `ейч эм`],
@@ -44,7 +49,7 @@ export default {
       category: new Set([categoryFilter[`Одежда`]])
     },
     {
-      id: `${FLOOR}_5`,
+      id: 5,
       title: `Лента`,
       logoSrc: `lenta.svg`,
       synonyms: [`Лента`, `lenta`],
@@ -53,7 +58,7 @@ export default {
       category: new Set([categoryFilter[`Продукты питания`]])
     },
     {
-      id: `${FLOOR}_6`,
+      id: 6,
       title: `TELE2`,
       logoSrc: `tele2.svg`,
       synonyms: [`tele2`, `теле2`],
@@ -63,7 +68,7 @@ export default {
       discount: new Set([discountFilter[`До 30%`]])
     },
     {
-      id: `${FLOOR}_7`,
+      id: 7,
       title: `Снежная королева`,
       logoSrc: `snowqueen.svg`,
       synonyms: [`снежная королева`, `снежная`],
@@ -77,8 +82,8 @@ export default {
       discount: new Set([discountFilter[`До 30%`]])
     },
     {
-      id: `${FLOOR}_8`,
-      title: `Pull&amp;Bear`,
+      id: 8,
+      title: `Pull&Bear`,
       logoSrc: `pullandbear.svg`,
       synonyms: [`pull&bear`, `pull & bear`, `пулл и биар`, `пулл и бир`],
       description: `Одежда для энергичных, творческих и амбициозных молодых людей`,
@@ -87,7 +92,7 @@ export default {
       discount: new Set([discountFilter[`До 30%`]])
     },
     {
-      id: `${FLOOR}_9`,
+      id: 9,
       title: `Помещение для магазина`,
       logoSrc: ``,
       synonyms: [],
