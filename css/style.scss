@@ -24,6 +24,9 @@ svg {
 .plan-place {
   fill: #b5b0f7;
   stroke: #fff;
+  stroke-width: 0.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
   transition: 0.25s;
 
   &--hovered {
@@ -126,6 +129,13 @@ svg {
   padding-right: 15px;
 }
 
+.plan-floor-boundary {
+  stroke-width: 4px;
+  stroke: #0d47a1;
+  fill: #e4e4e4;
+  stroke-linejoin: round;
+}
+
 .aero-plans__floor {
   position: relative;
   grid-column-start: 1;
@@ -184,6 +194,7 @@ svg {
 
   p {
     margin: 0;
+    margin-top: 8px;
   }
 
   &[x-placement="top"] {
@@ -201,7 +212,6 @@ svg {
 
 .aero-plan-popper__title {
   margin: 0;
-  margin-bottom: 8px;
   font-weight: 500;
   font-size: 20px;
 }

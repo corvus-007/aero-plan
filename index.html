@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
+  <link rel="stylesheet" href="css/awesomplete.css">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -113,6 +114,7 @@
     </select>
     <button type="reset">Очистить</button>
   </form>
+
   <!-- <ol class="aero-plans-toggle-floors">
     <li class="aero-plans-toggle-floors__item">
       <button class="aero-plans-toggle-floors__button"></button>
@@ -122,20 +124,25 @@
       </span>
     </li>
   </ol> -->
-
   <ol class="aero-plans-toggle-floors"></ol>
+
   <div class="zoom-actions">
     <button type="button" data-scale-action="down">scale down</button>
     <button type="button" data-scale-action="reset">scale reset</button>
     <button type="button" data-scale-action="up">scale up</button>
   </div>
-  <form class="aero-plans-search-form" data-plans-search-form>
-    <input type="search" name="nameOfPlace" placeholder="Поиск по арендаторам">
+
+  <form class="aero-plans-search-form" data-plans-search-form autocomplete="off">
+    <input  type="text" name="nameOfPlace" list="places-list" placeholder="Поиск по арендаторам">
+    <ul id="places-list"></ul>
+    <!-- <datalist id="places-list"></datalist> -->
   </form>
+
   <div class="aero-plans"></div>
   <div class="aero-plan-popper"></div>
 
   <script src="https://unpkg.com/popper.js@1.14.7/dist/umd/popper.min.js"></script>
+  <script src="scripts/awesomplete.min.js"></script>
   <script src="scripts/d3.js"></script>
   <script src="scripts/script.js" type="module"></script>
 </body>

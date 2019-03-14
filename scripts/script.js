@@ -7,8 +7,6 @@ import ToggleFloors from './toggle-floors.js';
 import floor1 from './floor-1.js';
 import floor2 from './floor-2.js';
 
-const WIDTH = 1105;
-const HEIGHT = 530;
 const MIN_ZOOM = 0.5;
 const MAX_ZOOM = 4.5;
 const PLAN_PLACE_CLASS = `plan-place`;
@@ -29,7 +27,12 @@ const categoryFilterSelect = filterForm.querySelector(`[name="category"]`);
 const forWhoFilterSelect = filterForm.querySelector(`[name="for-who"]`);
 const discountFilterSelect = filterForm.querySelector(`[name="discount"]`);
 const searchForm = document.querySelector(`[data-plans-search-form]`);
+const searchInput = searchForm.querySelector(`[name="nameOfPlace"]`);
+const searchDatalist = searchForm.querySelector(`#places-list`);
 const plansWrapper = document.querySelector(`.aero-plans`);
+// let widthPlansWrapper = null;
+// let heightPlansWrapper = null;
+
 const zoomActionsContainer = document.querySelector(".zoom-actions");
 const zoomActions = {
   reset: function (selection, zoom) {
@@ -57,13 +60,14 @@ const zoomsArr = []
 const svgArr = [];
 const mainGArr = [];
 const placesPathsArr = [];
+const dimensionFloorsArr = [];
 
 const reference = document.documentElement;
 const popper = document.querySelector(`.aero-plan-popper`);
 const popperInstance = new Popper(reference, popper, {
   modifiers: {
     preventOverflow: {
-      boundariesElement: document.querySelector(`.aero-plans`)
+      boundariesElement: plansWrapper
     }
   }
 });
@@ -90,23 +94,31 @@ popper.addEventListener(`mouseleave`, mouseleavePopperHandler);
 
 zoomActionsContainer.addEventListener(`click`, clickZoomContainerHandler);
 
-searchForm.addEventListener(`submit`, submitSearchFormHandler);
+// searchForm.addEventListener(`submit`, submitSearchFormHandler);
+// searchForm.addEventListener(`change`, submitSearchFormHandler);
+searchInput.addEventListener(`input`, inputSearchInputHandler);
 filterForm.addEventListener(`input`, inputFilterFormHandler);
 filterForm.addEventListener(`reset`, resetFormHandler);
 
 function renderPlan(plan, planIndex) {
+  const {
+    dimensions,
+    boundaryShape
+  } = plan.settings;
   const areas = plan.areas;
   const helpMarkers = plan.helpMarkers;
+  const planWidth = dimensions.width;
+  const planHeight = dimensions.height;
+
+  dimensionFloorsArr.push(dimensions);
 
   const svg = d3
     .select(`.aero-plans`)
     .append(`div`)
     .classed(`aero-plans__floor`, true)
-    .append(`svg`)
-    // .attr(`width`, `1105`)
-    .attr(`viewBox`, `0 0 ${WIDTH} ${HEIGHT}`);
+    .append(`svg`);
 
-  svgArr.push(svg);
+  svg.attr(`viewBox`, `0 0 ${planWidth} ${planHeight}`);
 
   // const nest = d3.nest().key((d) => {
   //   return d.category;
@@ -114,6 +126,7 @@ function renderPlan(plan, planIndex) {
   // console.log(nest);
 
   const mainG = svg.append(`g`);
+  const boundaryG = mainG.append(`g`);
   const placesG = mainG.append(`g`);
   const logosG = mainG.append(`g`);
   const helpMarkersG = mainG.append(`g`);
@@ -121,6 +134,9 @@ function renderPlan(plan, planIndex) {
   mainG
     .attr(`id`, `main-group`)
     .classed(`main-group`, true);
+  boundaryG
+    .attr(`id`, `boundary-group`)
+    .classed(`boundary-group`, true);
   placesG
     .attr(`id`, `places-group`)
     .classed(`places-group`, true);
@@ -133,6 +149,17 @@ function renderPlan(plan, planIndex) {
 
   mainGArr.push(mainG);
 
+  const borderPath = boundaryG
+    .append(`path`);
+
+  borderPath
+    .attr(`d`, boundaryShape)
+    .classed(`plan-floor-boundary`, true)
+
+
+  svgArr.push(svg);
+
+  // create markers
   if (helpMarkers) {
     helpMarkersG
       .selectAll(`g`)
@@ -185,6 +212,7 @@ function renderPlan(plan, planIndex) {
   //     `);
   // });
 
+  // create logos
   const logosImages = logosG.selectAll(`image`)
     .data(areas)
     .enter()
@@ -208,11 +236,16 @@ function renderPlan(plan, planIndex) {
     })
     .classed(PLAN_PLACE_LOGO_CLASS, true);
 
+  const widthPlansWrapper = plansWrapper.clientWidth;
+  const heightPlansWrapper = plansWrapper.clientHeight;
+
   const zoom = d3
     .zoom()
     .scaleExtent([MIN_ZOOM, MAX_ZOOM])
-    // Раскомментить нижнюю строку после перерисовки плана, т.к. path'ы выходят за границу SVG и нужно
-    // .translateExtent([[-500, -500], [WIDTH + 500, HEIGHT + 500]])
+    // .translateExtent([
+    //   [-240, -240],
+    //   [widthPlansWrapper + 240, heightPlansWrapper + 240]
+    // ])
     .on("zoom", zoomed);
 
   zoomsArr.push(zoom);
@@ -317,13 +350,70 @@ function resetFormHandler(evt) {
   removeClassFilteredAreas();
 }
 
-function submitSearchFormHandler(evt) {
-  evt.preventDefault();
-  const inputNode = searchForm.querySelector(`[name="nameOfPlace"]`);
-  const value = inputNode.value;
+// var input = document.getElementById("myinput");
+const awesomeplete = new Awesomplete(searchInput, {
+  // list: "#places-list",
+  minChars: 1,
+  // data(text, input) {
+  //   console.log(text, input);
+  //   return input;
+  // }
+});
+// console.log(awesomeplete);
+
+
+searchInput.addEventListener(`awesomplete-selectcomplete`, function (evt) {
+  const value = evt.text.value;
 
   // Поиск по названию
   catchTargetPlace(getFloorIndexAndObjectOfPlaceIdOnSearch(value));
+
+})
+
+function inputSearchInputHandler(evt) {
+  console.log(`input`);
+
+  const value = searchInput.value.trim().toLowerCase();
+
+  if (!value) {
+    return;
+  }
+
+  const resultsArr = [];
+
+  for (let floor = 0; floor < aeroPlans.length; floor++) {
+    const areas = aeroPlans[floor].areas;
+
+    const filteredAreas = areas.filter((area) => {
+      const synonymsStr = area.synonyms.join().toLowerCase();
+      const result = synonymsStr.search(value) != -1;
+      // console.log(result);
+
+      return result;
+    });
+
+    resultsArr.push(filteredAreas);
+  }
+
+  const resultsArrFlat = resultsArr.flat();
+
+  // searchDatalist.innerHTML = ``;
+  awesomeplete.list = createOptionsDatalist(resultsArr);
+}
+
+function submitSearchFormHandler(evt) {
+  evt.preventDefault();
+  const value = searchInput.value;
+
+  if (!value) {
+    return;
+  }
+
+  console.log(`search`);
+
+
+  // Поиск по названию
+  // catchTargetPlace(getFloorIndexAndObjectOfPlaceIdOnSearch(value));
 }
 
 function resetFilter(currentSelectNode) {
@@ -409,6 +499,31 @@ function createOptionsList(optionslist) {
   return optionsFragment;
 }
 
+function createOptionsDatalist(areasList) {
+  const resultArr = [];
+
+  for (let index = 0; index < areasList.length; index++) {
+    let numberFloor = index + 1;
+    const floor = areasList[index];
+
+    floor.forEach((area) => {
+      const title = area.title;
+      const description = area.description;
+      const floor = numberFloor;
+      const result = {
+        label: `<b>${title}</b> ${description} (${floor} этаж)`,
+        value: title
+      };
+
+      resultArr.push(result);
+    });
+  }
+
+  console.dir(resultArr);
+
+  return resultArr;
+}
+
 function catchTargetPlace({
   floorIndex,
   areaObj
@@ -428,7 +543,7 @@ function catchTargetPlace({
   const placeBBox = place.getBBox();
   const cx = placeBBox.x + placeBBox.width / 2;
   const cy = placeBBox.y + placeBBox.height / 2;
-  let scale = 0.95 * Math.min(WIDTH / placeBBox.width, HEIGHT / placeBBox.height);
+  let scale = 0.95 * Math.min(dimensionFloorsArr[floorIndex].width / placeBBox.width, dimensionFloorsArr[floorIndex].height / placeBBox.height);
 
   if (scale < MIN_ZOOM) {
     scale = MIN_ZOOM
@@ -436,7 +551,7 @@ function catchTargetPlace({
     scale = MAX_ZOOM;
   }
 
-  let translate = [(WIDTH / 2 - scale * cx), (HEIGHT / 2 - scale * cy)];
+  let translate = [(dimensionFloorsArr[floorIndex].width / 2 - scale * cx), (dimensionFloorsArr[floorIndex].height / 2 - scale * cy)];
 
   svgArr[floorIndex]
     .transition()
@@ -494,7 +609,7 @@ function getTargetIdFromAreaObj(placeObj) {
 function getFloorIndexAndObjectOfPlaceId(id) {
   let floorIndex = 0;
   let areaObj = null;
-  // id = parseInt(id, 10);
+  id = parseInt(id, 10);
 
   for (let i = 0; i < aeroPlans.length; i++) {
     let areas = aeroPlans[i].areas;
@@ -524,8 +639,9 @@ function getFloorIndexAndObjectOfPlaceIdOnSearch(value) {
     floorIndex = i;
     areaObj = areas.find((place) => {
       const synonyms = place.synonyms.map((word) => word.toLowerCase().trim());
+      const title = place.title.toLowerCase();
 
-      return synonyms.includes(value);
+      return synonyms.includes(value) || title.includes(value);
     });
 
     if (areaObj) {
