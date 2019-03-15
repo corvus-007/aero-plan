@@ -116,6 +116,44 @@ svg {
   margin-bottom: 24px;
 }
 
+.aero-plans-search-form {
+  position: relative;
+  z-index: 1;
+}
+
+.aero-plans-search-form__input {
+  display: block;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.aero-plans-search-form__result-list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background-color: #fff;
+}
+
+.autocomplete-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 300px;
+}
+
+.autocomplete-list__item {
+  padding: 10px;
+
+  &:hover {
+    background-color: #eeeeee;
+  }
+
+  &--highlighted {
+    background-color: #e4e4e4;
+  }
+}
+
 .aero-plans {
   display: grid;
   grid-template-columns: 1fr;

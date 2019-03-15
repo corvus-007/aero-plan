@@ -26,9 +26,6 @@ const filterForm = document.querySelector(`[data-plans-filter-form]`);
 const categoryFilterSelect = filterForm.querySelector(`[name="category"]`);
 const forWhoFilterSelect = filterForm.querySelector(`[name="for-who"]`);
 const discountFilterSelect = filterForm.querySelector(`[name="discount"]`);
-const searchForm = document.querySelector(`[data-plans-search-form]`);
-const searchInput = searchForm.querySelector(`[name="nameOfPlace"]`);
-const searchDatalist = searchForm.querySelector(`#places-list`);
 const plansWrapper = document.querySelector(`.aero-plans`);
 // let widthPlansWrapper = null;
 // let heightPlansWrapper = null;
@@ -93,12 +90,6 @@ plansWrapper.addEventListener(`mouseout`, mouseoutPlansWrapperHandler);
 popper.addEventListener(`mouseleave`, mouseleavePopperHandler);
 
 zoomActionsContainer.addEventListener(`click`, clickZoomContainerHandler);
-
-// searchForm.addEventListener(`submit`, submitSearchFormHandler);
-// searchForm.addEventListener(`change`, submitSearchFormHandler);
-searchInput.addEventListener(`input`, inputSearchInputHandler);
-filterForm.addEventListener(`input`, inputFilterFormHandler);
-filterForm.addEventListener(`reset`, resetFormHandler);
 
 function renderPlan(plan, planIndex) {
   const {
@@ -242,10 +233,10 @@ function renderPlan(plan, planIndex) {
   const zoom = d3
     .zoom()
     .scaleExtent([MIN_ZOOM, MAX_ZOOM])
-    // .translateExtent([
-    //   [-240, -240],
-    //   [widthPlansWrapper + 240, heightPlansWrapper + 240]
-    // ])
+    .translateExtent([
+      [-320, -320],
+      [widthPlansWrapper + 320, heightPlansWrapper + 320]
+    ])
     .on("zoom", zoomed);
 
   zoomsArr.push(zoom);
@@ -345,49 +336,149 @@ function inputFilterFormHandler(evt) {
   });
 }
 
+filterForm.addEventListener(`input`, inputFilterFormHandler);
+filterForm.addEventListener(`reset`, resetFormHandler);
+
 function resetFormHandler(evt) {
   removePlacesCountBadge();
   removeClassFilteredAreas();
 }
 
-// var input = document.getElementById("myinput");
-const awesomeplete = new Awesomplete(searchInput, {
-  // list: "#places-list",
-  minChars: 1,
-  // data(text, input) {
-  //   console.log(text, input);
-  //   return input;
-  // }
+const searchForm = document.querySelector(`[data-plans-search-form]`);
+const searchInput = searchForm.querySelector(`[name="nameOfPlace"]`);
+const searchResultList = searchForm.querySelector(`[data-autocomplete-list]`);
+let isFilledSearchInput = false;
+let searchMatchList = [];
+let searchResultCursor = 0;
+const KEYCODES = {
+  ENTER: 13,
+  ARROW_UP: 38,
+  ARROW_DOWN: 40,
+  ESC: 27
+};
+
+searchForm.addEventListener(`submit`, submitSearchFormHandler);
+searchInput.addEventListener(`keyup`, keyupSearchInputHandler);
+searchInput.addEventListener(`keydown`, keydownSearchInputHandler);
+searchInput.addEventListener(`focus`, focusSearchInputHandler);
+searchResultList.addEventListener(`click`, clickSearchResultListHandler);
+window.addEventListener('click', function (evt) {
+  const target = evt.target;
+  const searchForm = target.closest(`[data-plans-search-form]`);
+
+  if (!searchForm) {
+    hideSearchResultList();
+  }
 });
-// console.log(awesomeplete);
 
+function keydownSearchInputHandler(evt) {
+  if (evt.keyCode == KEYCODES.ENTER) {
+    evt.preventDefault();
+  } else if (evt.keyCode == KEYCODES.ESC) {
+    searchInput.blur();
+    hideSearchResultList();
+  }
+}
 
-searchInput.addEventListener(`awesomplete-selectcomplete`, function (evt) {
-  const value = evt.text.value;
+function submitSearchFormHandler(evt) {
+  evt.preventDefault();
+}
 
-  // Поиск по названию
-  catchTargetPlace(getFloorIndexAndObjectOfPlaceIdOnSearch(value));
-
-})
-
-function inputSearchInputHandler(evt) {
-  console.log(`input`);
-
+function keyupSearchInputHandler(evt) {
   const value = searchInput.value.trim().toLowerCase();
 
-  if (!value) {
+  searchResultList.innerHTML = ``;
+  toggleResultList(`hide`);
+
+  if (value) {
+    searchMatchList = getMatches(value, aeroPlans);
+
+    if (searchMatchList.length) {
+      const items = renderMatches(searchMatchList);
+
+      searchResultList.insertAdjacentHTML(`beforeEnd`, items);
+
+      moveCursor(searchResultCursor);
+      toggleResultList(`show`);
+    }
+  }
+
+  if (!searchResultList.hidden) {
+    switch (evt.keyCode) {
+      case KEYCODES.ENTER:
+        const value = searchResultList.children[searchResultCursor].dataset.title;
+        fillSearchInput(value);
+        break;
+      case KEYCODES.ARROW_UP:
+        isFilledSearchInput = false;
+        if (searchResultCursor > 0) {
+          searchResultCursor--;
+        } else if (searchResultCursor <= 0) {
+          searchResultCursor = searchResultList.children.length - 1;
+        }
+        break;
+      case KEYCODES.ARROW_DOWN:
+        isFilledSearchInput = false;
+        if (searchResultCursor < searchResultList.children.length - 1) {
+          searchResultCursor++;
+        } else if (searchResultCursor >= searchResultList.children.length - 1) {
+          searchResultCursor = 0
+        }
+        break;
+    }
+    moveCursor(searchResultCursor);
+  }
+}
+
+function focusSearchInputHandler(evt) {
+  searchResultCursor = 0;
+  if (isFilledSearchInput) {
+    search(searchInput.value);
+  }
+
+  showSearchResultList();
+}
+
+function clickSearchResultListHandler(evt) {
+  const target = evt.target;
+  const li = target.closest(`li`);
+
+  if (!li) {
     return;
   }
 
-  const resultsArr = [];
+  const value = li.dataset.title;
 
-  for (let floor = 0; floor < aeroPlans.length; floor++) {
-    const areas = aeroPlans[floor].areas;
+  fillSearchInput(value);
+}
+
+function fillSearchInput(value) {
+  searchInput.value = value;
+  toggleResultList(`hide`);
+  searchResultCursor = 0;
+  isFilledSearchInput = true;
+
+  catchTargetPlace(getFloorIndexAndObjectOfPlaceIdOnSearch(value));
+}
+
+function toggleResultList(action) {
+  if (action == `show`) {
+    searchResultList.hidden = false;
+  } else if (action == `hide`) {
+    searchResultList.hidden = true;
+  }
+}
+
+function getMatches(value, data) {
+  const resultsArr = [];
+  value = value.toLowerCase();
+
+  for (let i = 0; i < data.length; i++) {
+    const areas = data[i].areas;
 
     const filteredAreas = areas.filter((area) => {
       const synonymsStr = area.synonyms.join().toLowerCase();
       const result = synonymsStr.search(value) != -1;
-      // console.log(result);
 
       return result;
     });
@@ -395,25 +486,69 @@ function inputSearchInputHandler(evt) {
     resultsArr.push(filteredAreas);
   }
 
-  const resultsArrFlat = resultsArr.flat();
-
-  // searchDatalist.innerHTML = ``;
-  awesomeplete.list = createOptionsDatalist(resultsArr);
+  return resultsArr;
 }
 
-function submitSearchFormHandler(evt) {
-  evt.preventDefault();
-  const value = searchInput.value;
+function renderMatches(mathList) {
+  let resultHTMLStr = ``;
 
-  if (!value) {
-    return;
+  mathList.forEach((floorAreas, index) => {
+    const numberFloor = index + 1;
+
+    floorAreas.forEach((areaObj) => {
+      const title = areaObj.title;
+      const description = areaObj.description;
+      const floor = numberFloor;
+      const li = `
+      <li class="autocomplete-list__item" data-title="${title}">
+        <b>${title}</b>
+        <span>${description}</span>
+        <span>(${floor}этаж)</span>
+      </li>
+      `;
+
+      resultHTMLStr += li;
+    });
+  });
+
+  return resultHTMLStr;
+}
+
+function moveCursor(pos) {
+  const item = searchResultList.children[pos];
+
+  [...searchResultList.children].forEach((item) => {
+    item.classList.remove(`autocomplete-list__item--highlighted`);
+  });
+
+  if (item) {
+    item.classList.add(`autocomplete-list__item--highlighted`);
   }
+}
 
-  console.log(`search`);
+function showSearchResultList() {
+  toggleResultList(`show`);
+}
 
+function hideSearchResultList() {
+  toggleResultList(`hide`);
+}
 
-  // Поиск по названию
-  // catchTargetPlace(getFloorIndexAndObjectOfPlaceIdOnSearch(value));
+function search(value) {
+  if (value) {
+    searchMatchList = getMatches(value, aeroPlans);
+    const searchMatchListFlat = searchMatchList.flat();
+
+    if (searchMatchListFlat.length) {
+      const items = renderMatches(searchMatchList);
+      searchResultList.innerHTML = ``;
+
+      searchResultList.insertAdjacentHTML(`beforeEnd`, items);
+
+      moveCursor(searchResultCursor);
+      toggleResultList(`show`);
+    }
+  }
 }
 
 function resetFilter(currentSelectNode) {
@@ -497,31 +632,6 @@ function createOptionsList(optionslist) {
   }
 
   return optionsFragment;
-}
-
-function createOptionsDatalist(areasList) {
-  const resultArr = [];
-
-  for (let index = 0; index < areasList.length; index++) {
-    let numberFloor = index + 1;
-    const floor = areasList[index];
-
-    floor.forEach((area) => {
-      const title = area.title;
-      const description = area.description;
-      const floor = numberFloor;
-      const result = {
-        label: `<b>${title}</b> ${description} (${floor} этаж)`,
-        value: title
-      };
-
-      resultArr.push(result);
-    });
-  }
-
-  console.dir(resultArr);
-
-  return resultArr;
 }
 
 function catchTargetPlace({
