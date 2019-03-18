@@ -132,7 +132,10 @@
   </div>
 
   <form class="aero-plans-search-form" data-plans-search-form autocomplete="off">
-    <input class="aero-plans-search-form__input" type="text" name="nameOfPlace" placeholder="Поиск по арендаторам">
+    <div class="aero-plans-search-form__field">
+      <input class="aero-plans-search-form__input" type="text" name="nameOfPlace" placeholder="Поиск по арендаторам">
+      <button class="aero-plans-search-form__button" type="button" data-clear-search-input>Очистить</button>
+    </div>
     <ul id="places-list" class="aero-plans-search-form__result-list autocomplete-list" data-autocomplete-list></ul>
   </form>
 

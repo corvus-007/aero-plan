@@ -125,7 +125,22 @@ svg {
   display: block;
   width: 100%;
   padding: 10px;
+  padding-right: 50px;
   box-sizing: border-box;
+}
+
+.aero-plans-search-form__button {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  opacity: 0;
+  visibility: hidden;
+
+  .aero-plans-search-form__field--filled & {
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
 .aero-plans-search-form__result-list {
