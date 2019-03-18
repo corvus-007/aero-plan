@@ -349,7 +349,6 @@ const searchFormField = searchForm.querySelector(`.aero-plans-search-form__field
 const searchInput = searchForm.querySelector(`[name="nameOfPlace"]`);
 const searchClearButton = searchForm.querySelector(`[data-clear-search-input]`);
 const searchResultList = searchForm.querySelector(`[data-autocomplete-list]`);
-let isFilledSearchInput = false;
 let searchMatchList = [];
 let searchResultCursor = 0;
 const KEYCODES = {
@@ -414,7 +413,6 @@ function keyupSearchInputHandler(evt) {
         fillSearchInput(value);
         break;
       case KEYCODES.ARROW_UP:
-        isFilledSearchInput = false;
         if (searchResultCursor > 0) {
           searchResultCursor--;
         } else if (searchResultCursor <= 0) {
@@ -422,7 +420,6 @@ function keyupSearchInputHandler(evt) {
         }
         break;
       case KEYCODES.ARROW_DOWN:
-        isFilledSearchInput = false;
         if (searchResultCursor < searchResultList.children.length - 1) {
           searchResultCursor++;
         } else if (searchResultCursor >= searchResultList.children.length - 1) {
@@ -435,12 +432,14 @@ function keyupSearchInputHandler(evt) {
 }
 
 function focusSearchInputHandler(evt) {
-  searchResultCursor = 0;
-  if (isFilledSearchInput) {
-    search(searchInput.value);
-  }
+  const value = searchInput.value;
 
-  showSearchResultList();
+  searchResultCursor = 0;
+
+  if (value) {
+    search(searchInput.value);
+    showSearchResultList();
+  }
 }
 
 function clickSearchClearButtonHandler(evt) {
@@ -448,6 +447,7 @@ function clickSearchClearButtonHandler(evt) {
 
   const value = searchInput.value = ``;
   togglePlanSearchFormFieldFilledModifier(value);
+  hideSearchResultList();
 }
 
 function inputSearchInputHandler(evt) {
@@ -476,7 +476,6 @@ function fillSearchInput(value) {
   searchInput.value = value;
   toggleResultList(`hide`);
   searchResultCursor = 0;
-  isFilledSearchInput = true;
 
   catchTargetPlace(getFloorIndexAndObjectOfPlaceIdOnSearch(value));
 }
