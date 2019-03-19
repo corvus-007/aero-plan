@@ -7,17 +7,17 @@ import {
 export default {
   settings: {
     dimensions: {
-      width: 944,
-      height: 337
+      width: 1572.8,
+      height: 560.1
     },
-    boundaryShape: `M2.3 312.2h37.4l.3.4c10.7 14 27.1 22.1 45 22.2h.2c18.1 0 34.8-8.1 45.6-22.2l.3-.4h.4l810.9.4V2.3L9 2.5v249.2H2.4l-.1 60.5z`
+    boundaryShape: `M141.1,560.1h-.3c-30.6-.1-58.6-13.8-76.9-37.6H0V415.6H11.2V.4h1.5L1572.8,0V523.1h-1.5L219,522.5C200.3,546.5,172,560.1,141.1,560.1Z`
   },
   areas: [{
       id: 1,
       title: `KARI`,
       synonyms: [`кари`, `kari`],
       description: `Обувной магазин`,
-      path: `M-284.7,179.1h-72.7v28 h-91.1l-0.2-95.2l163.7,0L-284.7,179.1z`,
+      path: `M181.6,159.6H108.9v28H17.8l-.2-95.2H181.3Z`,
       category: new Set([categoryFilter[`Обувь`]])
     },
     {
@@ -26,9 +26,9 @@ export default {
       logoSrc: `zara.svg`,
       synonyms: [`zara`, `зара`],
       description: `Одежда для современных людей`,
+      path: `M778.9,5.9l.6,240.6a58.1,58.1,0,0,0-6.9,15.7H591.4V5.9Z`,
       category: new Set([categoryFilter[`Одежда`]]),
       'for-who': new Set([forWhoFilter[`Мужская одежда`], forWhoFilter[`Женская одежда`]]),
-      path: `M312.6,25.4l0.6,240.6 c-3,4.8-5.4,10.1-6.9,15.7H125.1V25.4H312.6z`,
     },
     {
       id: 3,
@@ -36,7 +36,7 @@ export default {
       logoSrc: `bershka.svg`,
       synonyms: [`bershka`, `бершка`],
       description: `Трендовая одежда, обувь и аксессуары`,
-      path: `M486.6,256.3v25.1 h-62.4c-5.7-20.9-22.2-37.2-43.2-42.6l36.4-18v-33.7v-33.6v-0.1v-128h69.1V256.3z`,
+      path: `M952.9,236.8v25.1H890.5a60.4,60.4,0,0,0-43.2-42.6l36.4-18V134h0V5.9h69.1V236.8Z`,
       category: new Set([categoryFilter[`Одежда`]])
     },
     {
@@ -45,7 +45,7 @@ export default {
       logoSrc: `h&m.svg`,
       synonyms: [`h&m`, `hm`, `ейч эм`],
       description: `Модная одежда для женщин, мужчин, подростков и детей`,
-      path: `M-284.5,179.6v28.9v173 h-163.4l-0.5-173.8h91.7l0-28.1H-284.5z`,
+      path: `M181.8,160.1V362H18.4l-.5-173.8h91.7V160.1Z`,
       category: new Set([categoryFilter[`Одежда`]])
     },
     {
@@ -54,7 +54,7 @@ export default {
       logoSrc: `lenta.svg`,
       synonyms: [`Лента`, `lenta`],
       description: `Гипермаркет`,
-      path: `M782.7,25.4h317.1 v510.1H782.7v-25.6v-24.9V25.4z`,
+      path: `M1249,5.9h317.1V516H1249V5.9Z`,
       category: new Set([categoryFilter[`Продукты питания`]])
     },
     {
@@ -63,7 +63,7 @@ export default {
       logoSrc: `tele2.svg`,
       synonyms: [`tele2`, `теле2`],
       description: `Оператор сотовой связи`,
-      path: `M690.5,431.4 712.9,431.4 712.9,453.7 690.5,453.7z`,
+      path: `M1156.8,411.9h22.4v22.3h-22.4Z`,
       category: new Set([categoryFilter[`Сотовая связь`], categoryFilter[`Бытовая техника и электроника`]]),
       discount: new Set([discountFilter[`До 30%`]])
     },
@@ -77,7 +77,7 @@ export default {
         url: `http://www.trc-aeropark.ru/shop/snezhnaya-koroleva`,
         text: `1 действующая акция`
       },
-      path: `M125.1,281.8 l-67.5,0v-52l-57.5,0V25.4h125V281.8z`,
+      path: `M591.4,262.3H523.9v-52H466.4V5.9h125Z`,
       category: new Set([categoryFilter[`Одежда`]]),
       discount: new Set([discountFilter[`До 30%`]])
     },
@@ -87,7 +87,7 @@ export default {
       logoSrc: `pullandbear.svg`,
       synonyms: [`pull&bear`, `pull & bear`, `пулл и биар`, `пулл и бир`],
       description: `Одежда для энергичных, творческих и амбициозных молодых людей`,
-      path: `M140.7,312.5 140.7,359.5   140.7,383.9 140.7,383.9 140.7,420 141.4,420 141.4,420.5 177.1,420.5 177.1,420.5 211.1,420.5 211.2,420.5 245.1,420.5 245.1,420   245.1,408.3 245.1,312.5 z`,
+      path: `M607,293v71.4h0v36.1h.7v.5H711.4V293Z`,
       category: new Set([categoryFilter[`Одежда`]]),
       discount: new Set([discountFilter[`До 30%`]])
     },
@@ -106,7 +106,25 @@ export default {
         text: `Отправить заявку`,
         action: ``
       },
-      path: `M-181.5,454.1h-21.8l-14.3-23.1v-24.6 h36.1V454.1z`,
+      path: `M284.8,434.6H263l-14.3-23.1V386.9h36.1Z`,
+      category: new Set([categoryFilter[`Парфюмерия и косметика`]]),
+      discount: new Set()
+    },
+    {
+      id: 16,
+      title: `Л'Этуаль (L’Etoile)`,
+      logoSrc: `letoile.svg`,
+      synonyms: [`лэтуаль`, `летуаль`, `letoile`],
+      description: `Супермаркет парфюмерно-косметической продукции`,
+      link: {
+        text: ``,
+        url: ``
+      },
+      button: {
+        text: ``,
+        action: ``
+      },
+      path: `M711.4,388.8v11.7h.1v33.8H772l44.2-18.7V388.8H711.4Z`,
       category: new Set(),
       discount: new Set()
     }
@@ -199,8 +217,28 @@ export default {
       symbolId: `fountain`,
       points: [{
         title: `Фонтан`,
-        position: [649.5, 300],
-        size: 64
+        position: [831, 452]
+      }]
+    },
+    {
+      symbolId: `info`,
+      points: [{
+        title: `Инфостойка`,
+        position: [831, 402]
+      }]
+    },
+    {
+      symbolId: `disabled`,
+      points: [{
+        title: `Туалет для ММГ`,
+        position: [480, 398]
+      }]
+    },
+    {
+      symbolId: `baby-care`,
+      points: [{
+        title: `Комната матери и ребенка`,
+        position: [508, 398]
       }]
     },
   ]
