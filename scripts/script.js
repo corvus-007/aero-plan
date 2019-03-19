@@ -17,7 +17,7 @@ const PLAN_PLACE_LOGO_CLASS = `plan-place-logo`;
 const MAX_LOGO_WIDTH = 250;
 const MAX_LOGO_HEIGHT = 250;
 const KOEF_LOGO_SIZE = 0.7;
-const MARKER_SIZE = 32;
+const MARKER_SIZE = 24;
 
 const url = new URL(window.location);
 const params = new URLSearchParams(url.search);
@@ -160,7 +160,6 @@ function renderPlan(plan, planIndex) {
       .each(function (d) {
         const symbolId = d.symbolId;
         const points = d.points;
-
         const use = d3
           .select(this)
           .selectAll(`use`)
@@ -173,7 +172,7 @@ function renderPlan(plan, planIndex) {
           .attr(`xlink:href`, `#${symbolId}`)
           .attr(`width`, (d) => d.size ? d.size : MARKER_SIZE)
           .attr(`height`, (d) => d.size ? d.size : MARKER_SIZE)
-          .attr(`transform`, (d) => `translate(${d.position[0]} ${d.position[1]})`)
+          .attr(`transform`, (d) => `translate(${d.position[0] - MARKER_SIZE / 2} ${d.position[1] - MARKER_SIZE / 2})`)
           .classed(`plan-help-marker`, true);
       });
   }
@@ -227,16 +226,18 @@ function renderPlan(plan, planIndex) {
     })
     .classed(PLAN_PLACE_LOGO_CLASS, true);
 
-  const widthPlansWrapper = plansWrapper.clientWidth;
-  const heightPlansWrapper = plansWrapper.clientHeight;
+  // const widthPlansWrapper = plansWrapper.clientWidth;
+  // const heightPlansWrapper = plansWrapper.clientHeight;
+  // const widthPlansWrapper =  planWidth + planWidth - plansWrapper.clientWidth;
+  // const heightPlansWrapper = planHeight+  planHeight - plansWrapper.clientHeight;
 
   const zoom = d3
     .zoom()
     .scaleExtent([MIN_ZOOM, MAX_ZOOM])
-    .translateExtent([
-      [-320, -320],
-      [widthPlansWrapper + 320, heightPlansWrapper + 320]
-    ])
+    // .translateExtent([
+    //   [-320, -320],
+    //   [widthPlansWrapper + 320, heightPlansWrapper + 320]
+    // ])
     .on("zoom", zoomed);
 
   zoomsArr.push(zoom);
@@ -253,7 +254,7 @@ function renderPlan(plan, planIndex) {
 catchTargetPlace(getFloorIndexAndObjectOfPlaceId(placeId));
 
 function getPathToLogoImage(d, index) {
-  return d.logoSrc ? `logos/floor_${index+1}/${d.logoSrc}` : null;
+  return d.logoSrc ? `logos/floor_${index + 1}/${d.logoSrc}` : null;
 }
 
 function mouseroverPlansWrapperHandler(evt) {
@@ -437,7 +438,7 @@ function focusSearchInputHandler(evt) {
   searchResultCursor = 0;
 
   if (value) {
-    search(searchInput.value);
+    searchOnPlan(searchInput.value);
     showSearchResultList();
   }
 }
@@ -553,7 +554,7 @@ function hideSearchResultList() {
   toggleResultList(`hide`);
 }
 
-function search(value) {
+function searchOnPlan(value) {
   if (value) {
     searchMatchList = getMatches(value, aeroPlans);
     const searchMatchListFlat = searchMatchList.flat();
